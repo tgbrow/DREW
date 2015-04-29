@@ -1,0 +1,41 @@
+TABS: (1) Overview
+      (2) Wearables
+	  (3) Connected Devices
+	  (4) Zones
+	  (5) Profiles
+	  
+1. Overview
+   * Table with zone info: Zone Name / Wearables Present
+   
+2. Wearables
+   * Table of wearables: Name / Hardware ID
+   * Edit / Delete / New
+   
+3. Connected Devices
+   * Table of connected devices: Name / Type / Status
+   * e.g. Type -> Plugable || Status -> On / Off / Unavailable
+   * Edit / Delete / New
+   
+4. Zones
+   * Table of zones: Name / Module Hardware ID
+   * Edit / Delete / New
+   
+5. Profiles
+   * Table of profiles: Name / Active
+   * View / Edit / Delete / New / Activate
+   
+Terminology: wearable (D.R.E.W.) unit, connected device, zone module
+
+
+
+============
+
+ui storyboard
+
+comm message format
+
+mechanical design (case)
+
+battery choice
+
+order final parts
