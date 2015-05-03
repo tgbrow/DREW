@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ZoneDialog</class>
- <widget class="QWidget" name="ZoneDialog">
+ <class>DeviceDialog</class>
+ <widget class="QWidget" name="DeviceDialog">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -13,33 +13,45 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>400</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>400</width>
+    <height>300</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>Zone Setup</string>
+   <string>Connected Device Setup</string>
   </property>
   <widget class="QLabel" name="labelName">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>20</y>
-     <width>71</width>
+     <width>81</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Zone Name:</string>
+    <string>Device Name:</string>
    </property>
   </widget>
-  <widget class="QLabel" name="labelSelectModule">
+  <widget class="QLabel" name="labelSelectDevice">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>100</y>
-     <width>111</width>
+     <width>131</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Select Zone Module:</string>
+    <string>Select Device:</string>
    </property>
   </widget>
   <widget class="QPlainTextEdit" name="inputName">
@@ -55,7 +67,7 @@
     <enum>Qt::ScrollBarAlwaysOff</enum>
    </property>
   </widget>
-  <widget class="QComboBox" name="dropdownModule">
+  <widget class="QComboBox" name="dropdownDevice">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -68,9 +80,9 @@
   <widget class="QPushButton" name="buttonRefresh">
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>310</x>
      <y>150</y>
-     <width>81</width>
+     <width>71</width>
      <height>23</height>
     </rect>
    </property>
@@ -103,6 +115,34 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="labelType">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>190</y>
+     <width>131</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Device Type:</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="dropdownType">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>210</y>
+     <width>361</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>Plugable Outlet Switch</string>
+    </property>
+   </item>
   </widget>
  </widget>
  <resources/>

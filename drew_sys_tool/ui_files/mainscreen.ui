@@ -37,20 +37,20 @@
      <x>10</x>
      <y>10</y>
      <width>480</width>
-     <height>630</height>
+     <height>631</height>
     </rect>
    </property>
    <property name="currentIndex">
     <number>0</number>
    </property>
-   <widget class="QWidget" name="tabOverview">
+   <widget class="QWidget" name="tabStatus">
     <property name="accessibleName">
      <string/>
     </property>
     <attribute name="title">
-     <string>Overview</string>
+     <string>Status</string>
     </attribute>
-    <widget class="QTableWidget" name="tableOverview">
+    <widget class="QTableWidget" name="tableStatus">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -86,17 +86,17 @@
      </column>
     </widget>
    </widget>
-   <widget class="QWidget" name="tabWearables">
+   <widget class="QWidget" name="tabHardware">
     <attribute name="title">
-     <string>Wearables</string>
+     <string>Hardware Setup</string>
     </attribute>
-    <widget class="QTableWidget" name="tableWearables">
+    <widget class="QTableWidget" name="tableWearable">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>10</y>
+       <y>30</y>
        <width>450</width>
-       <height>550</height>
+       <height>130</height>
       </rect>
      </property>
      <attribute name="horizontalHeaderDefaultSectionSize">
@@ -112,7 +112,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Hardware ID</string>
+       <string>Wearable ID</string>
       </property>
      </column>
     </widget>
@@ -120,28 +120,28 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>570</y>
+       <y>170</y>
        <width>451</width>
        <height>25</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="buttonPanelW">
+     <layout class="QHBoxLayout" name="buttonGroupWearable">
       <item>
-       <widget class="QPushButton" name="buttonEditW">
+       <widget class="QPushButton" name="buttonEditWearable">
         <property name="text">
          <string>Edit</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="buttonDeleteW">
+       <widget class="QPushButton" name="buttonDeleteWearable">
         <property name="text">
          <string>Delete</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="buttonNewW">
+       <widget class="QPushButton" name="buttonNewWearable">
         <property name="text">
          <string>New</string>
         </property>
@@ -149,51 +149,72 @@
       </item>
      </layout>
     </widget>
-   </widget>
-   <widget class="QWidget" name="tabConnectedDevices">
-    <attribute name="title">
-     <string>Connected Devices</string>
-    </attribute>
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>570</y>
-       <width>451</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="buttonPanelCD">
-      <item>
-       <widget class="QPushButton" name="buttonEditCD">
-        <property name="text">
-         <string>Edit</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="buttonDeleteCD">
-        <property name="text">
-         <string>Delete</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="buttonNewCD">
-        <property name="text">
-         <string>New</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QTableWidget" name="tableConnectedDevices">
+    <widget class="QLabel" name="labelWearable">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>10</y>
+       <width>90</width>
+       <height>15</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Wearables:</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>570</y>
+       <width>451</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="buttonGroupDevice">
+      <item>
+       <widget class="QPushButton" name="buttonEditDevice">
+        <property name="text">
+         <string>Edit</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonDeleteDevice">
+        <property name="text">
+         <string>Delete</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonNewDevice">
+        <property name="text">
+         <string>New</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QLabel" name="labelZone">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>410</y>
+       <width>111</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Connected Devices:</string>
+     </property>
+    </widget>
+    <widget class="QTableWidget" name="tableDevice">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>430</y>
        <width>450</width>
-       <height>550</height>
+       <height>130</height>
       </rect>
      </property>
      <attribute name="horizontalHeaderDefaultSectionSize">
@@ -214,41 +235,36 @@
      </column>
      <column>
       <property name="text">
-       <string>Status</string>
+       <string>State</string>
       </property>
      </column>
     </widget>
-   </widget>
-   <widget class="QWidget" name="tabZones">
-    <attribute name="title">
-     <string>Zones</string>
-    </attribute>
-    <widget class="QWidget" name="layoutWidget_2">
+    <widget class="QWidget" name="layoutWidget_3">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>570</y>
+       <y>370</y>
        <width>451</width>
        <height>25</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="buttonPanelZ">
+     <layout class="QHBoxLayout" name="buttonGroupZone">
       <item>
-       <widget class="QPushButton" name="buttonEditZ">
+       <widget class="QPushButton" name="buttonEditZone">
         <property name="text">
          <string>Edit</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="buttonDeleteZ">
+       <widget class="QPushButton" name="buttonDeleteZone">
         <property name="text">
          <string>Delete</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="buttonNewZ">
+       <widget class="QPushButton" name="buttonNewZone">
         <property name="text">
          <string>New</string>
         </property>
@@ -256,13 +272,26 @@
       </item>
      </layout>
     </widget>
-    <widget class="QTableWidget" name="tableZones">
+    <widget class="QLabel" name="labelDevice">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>10</y>
+       <y>210</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Zones:</string>
+     </property>
+    </widget>
+    <widget class="QTableWidget" name="tableZone">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>230</y>
        <width>450</width>
-       <height>550</height>
+       <height>130</height>
       </rect>
      </property>
      <attribute name="horizontalHeaderDefaultSectionSize">
@@ -278,42 +307,52 @@
      </column>
      <column>
       <property name="text">
-       <string>Module Hardware ID</string>
+       <string>Module ID</string>
       </property>
      </column>
     </widget>
    </widget>
-   <widget class="QWidget" name="tabProfiles">
+   <widget class="QWidget" name="tabSystem">
     <attribute name="title">
-     <string>Profiles</string>
+     <string>System Setup</string>
     </attribute>
-    <widget class="QTableWidget" name="tableProfiles">
+    <widget class="QTableWidget" name="tableSystem">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>10</y>
        <width>450</width>
-       <height>550</height>
+       <height>551</height>
       </rect>
      </property>
      <attribute name="horizontalHeaderDefaultSectionSize">
-      <number>224</number>
+      <number>112</number>
      </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
      </attribute>
      <column>
       <property name="text">
-       <string>Name</string>
+       <string>Device</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Active</string>
+       <string>Containing Zone</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Entry Action</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Exit Action</string>
       </property>
      </column>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="layoutWidget_4">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -322,32 +361,18 @@
        <height>25</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="buttonPanelP">
+     <layout class="QHBoxLayout" name="buttonGroupSystem">
       <item>
-       <widget class="QPushButton" name="buttonEditP">
+       <widget class="QPushButton" name="buttonEditSystem">
         <property name="text">
          <string>Edit</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="buttonDeleteP">
+       <widget class="QPushButton" name="buttonClearSystem">
         <property name="text">
-         <string>Delete</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="buttonActivateP">
-        <property name="text">
-         <string>Activate</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="buttonNewP">
-        <property name="text">
-         <string>New</string>
+         <string>Clear Settings</string>
         </property>
        </widget>
       </item>
