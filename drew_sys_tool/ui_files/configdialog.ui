@@ -28,6 +28,7 @@
   <property name="windowTitle">
    <string>Device Configuration</string>
   </property>
+  <widget class="QLabel" name="labelZone">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -40,6 +41,7 @@
     <string>Zone Containing Device:</string>
    </property>
   </widget>
+  <widget class="QLabel" name="labelEntryAction">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -52,6 +54,7 @@
     <string>Device Action on Zone Entry:</string>
    </property>
   </widget>
+  <widget class="QComboBox" name="dropdownEntryAction">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -70,6 +73,7 @@
      <height>25</height>
     </rect>
    </property>
+   <layout class="QHBoxLayout" name="buttonGroup">
     <item>
      <widget class="QPushButton" name="buttonCancel">
       <property name="text">
@@ -86,6 +90,7 @@
     </item>
    </layout>
   </widget>
+  <widget class="QLabel" name="labelExitAction">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -98,6 +103,7 @@
     <string>Device Action on Zone Exit:</string>
    </property>
   </widget>
+  <widget class="QComboBox" name="dropdownZone">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -107,6 +113,7 @@
     </rect>
    </property>
   </widget>
+  <widget class="QComboBox" name="dropdownExitAction">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -116,6 +123,7 @@
     </rect>
    </property>
   </widget>
+  <widget class="QLabel" name="labelConfig">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -132,4 +140,3 @@
  <resources/>
  <connections/>
 </ui>
-
