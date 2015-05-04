@@ -4,39 +4,27 @@
 	
 	<devices>
 		<device d_id="d0">
-			<name>device_name</name>
-			<mac>XX:XX:XX:XX:XX</mac>
-			<actions>
-				<action a_id="a0">ON</action>
-				<action a_id="a1">OFF</action>
-			</actions>
+			<name>device_name</name> <!-- name of the device -->
+			<mac>XX:XX:XX:XX:XX</mac> <!-- mac address -->
+			<dev_type>0</dev_type> <!-- type of devices 0-plugable, 1-who knows... -->
+			<enter>2</enter> <!-- enter action 0-ignore, 1-off, 2-on -->
+			<exit>1</exit> <!-- exit action 0-ignore, 1-off, 2-on -->
+			<z_id>z0</z_id> <!-- this is the zone it will be associaed with -->
 		</device>
 	</devices>
 
-	<modules>
-		<module m_id="m0">
-			<name>module_name</name>
-			<hw_id>XXXX</hw_id>
-		</module>
-	</modules>
-	
 	<wearables>
 		<wearable w_id="w0">
 			<name>wearable_name</name>
-			<hw_id>XXXX</hw_id>
+			<hw_id>XXXX</hw_id> <!-- hardware id of the device -->
 		</wearable>
 	</wearables>
 
 	<zones>
 		<zone z_id="z0">
 			<name>zone_name</name>
-			<m_id>m0</m_id>
-			<threshold>100</threshold>
-			<devices>
-				<d_id>d0</d_id>
-				<enable>a0</enable>
-				<disable>a1</disable>
-			</device>
+			<hw_id>XXXX</hw_id> <!-- hardware id of the device -->
+			<threshold>100</threshold> <!-- threshold that determines when to turn on -->
 		</zone>
 	</zones>
 	
@@ -53,3 +41,26 @@
 	</profiles>
 
 </configuration>
+
+
+<!--
+	<actions>
+		<action a_id="a0">ON</action>
+		<action a_id="a1">OFF</action>
+		<action a_id="a2">Timer</action>
+	</actions>
+
+	<modules>
+		<module m_id="m0">
+			<name>module_name</name>
+			<hw_id>XXXX</hw_id>
+		</module>
+	</modules>
+
+	<m_id>m0</m_id>
+	<devices>
+		<d_id>d0</d_id>
+		<enable>a0</enable>
+		<disable>a2</disable>
+	</devices>
+-->
