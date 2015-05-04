@@ -26,6 +26,6 @@ class Wearable():
 class Profile():
   def __init__(self, name='default_profile', xml_id=None, wearables=None, zones=None):
     self.name = name
-    self.xml_id = xml_id
-    self.wearables = wearables
+    self.xml_id = self
+    xml_id.wearables = wearables
     self.zones = zones
