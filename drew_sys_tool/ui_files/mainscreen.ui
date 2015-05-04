@@ -99,11 +99,17 @@
        <height>130</height>
       </rect>
      </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
      <attribute name="horizontalHeaderDefaultSectionSize">
       <number>224</number>
      </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
      </attribute>
      <column>
       <property name="text">
@@ -217,11 +223,17 @@
        <height>130</height>
       </rect>
      </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
      <attribute name="horizontalHeaderDefaultSectionSize">
       <number>149</number>
      </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
      </attribute>
      <column>
       <property name="text">
@@ -294,11 +306,17 @@
        <height>130</height>
       </rect>
      </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
      <attribute name="horizontalHeaderDefaultSectionSize">
-      <number>224</number>
+      <number>149</number>
      </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
      </attribute>
      <column>
       <property name="text">
@@ -308,6 +326,11 @@
      <column>
       <property name="text">
        <string>Module ID</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Threshold</string>
       </property>
      </column>
     </widget>
@@ -325,11 +348,17 @@
        <height>551</height>
       </rect>
      </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
      <attribute name="horizontalHeaderDefaultSectionSize">
       <number>112</number>
      </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
      </attribute>
      <column>
       <property name="text">
