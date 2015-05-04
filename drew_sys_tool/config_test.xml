@@ -15,7 +15,7 @@
 	<wearables>
 		<wearable wId="0">
 			<name>test_wearable</name>
-			<hwId>1234</hwId>
+			<hwId>555</hwId>
 		</wearable>
 	</wearables>
 
@@ -26,13 +26,5 @@
 			<threshold>100</threshold>
 		</zone>
 	</zones>
-	
-	<profiles>
-		<profile pId="0">
-			<name>profile_name</name>
-				<wId>0</wId>
-			<zId>0</zId>
-		</profile>
-	</profiles>
 
 </configuration>

@@ -31,13 +31,6 @@ class Wearable():
     self.xmlId = xmlId
     self.hwId = hwId
 
-class Profile():
-  def __init__(self, name='default_profile', xmlId=None, wearables=None, zones=None):
-    self.name = name
-    self.xmlId = self
-    self.wearables = wearables
-    self.zones = zones
-
 class XmlControl():
   def __init__(self, filename='config.xml'):
     self.filename = filename
@@ -46,18 +39,14 @@ class XmlControl():
     self.zones = {}
     self.devices = {}
     self.wearables = {}
-    self.profiles = {}
-    print("created XML_Reader")
 
   def load(self):
     if (self.filename == None):
       return
 
-    # parses the file from the root, but doesn't really return anything
     # parse all the data for devices
     self.devices = {}
     for d in self.root.find('devices'):
-      print(d.tag, d.attrib)
       name = d.find('name').text
       xmlId = int(d.get('dId'))
       hwId = d.find('hwId').text
@@ -70,7 +59,6 @@ class XmlControl():
     # parse data for zones
     self.zones = {}
     for z in self.root.find('zones'):
-      print(z.tag, z.attrib)
       name = z.find('name').text
       xmlId = int(z.get('zId'))
       hwId = z.find('hwId').text
@@ -80,21 +68,10 @@ class XmlControl():
     # parse wearable data
     self.wearables = {}
     for w in self.root.find('wearables'):
-      print(w.tag, w.attrib)
       name = w.find('name').text
       xmlId = int(w.get('wId'))
       hwId = w.find('hwId').text
       self.wearables[xmlId] = Wearable(name, xmlId, hwId)
-
-    # parse profile data
-    self.profiles = {}
-    for p in self.root.find('profiles'):
-      print(p.tag, p.attrib)
-      name = p.find('name').text
-      xmlId = int(p.get('pId'))
-      # some wearables
-      # some zones
-      self.profiles[xmlId] = Profile(name, xmlId)
 
 
 class SystemState:
@@ -110,7 +87,6 @@ class SystemState:
   def getXmlId(self, typeId):
     xmlId = self.nextIds[typeId]
     self.nextIds[typeId] += 1
-    print("grabbed xmlId: " + str(xmlId))
     return xmlId
 
   def newWearable(self):
@@ -119,13 +95,23 @@ class SystemState:
     self.dicts[W_TID][xmlId] = wearable
     return wearable
 
-  def getWearable(self, xmlId):
-    return self.dicts[W_TID][xmlId]
+  def getHardwareObject(self, typeId, xmlId):
+    return self.dicts[typeId][xmlId]
 
-  def deleteHardwareItem(self, typeId, xmlId):
+  def deleteHardwareObject(self, typeId, xmlId):
     del self.dicts[typeId][xmlId]
     if (self.nextIds[typeId] == xmlId + 1):
       self.nextIds[typeId] = xmlId
+
+  def discoverHardware(self, typeId):
+    # TODO -- get a legit list of hwIds
+    hwIdList = [111, 222, 333, 444, 555, 666, 777]
+
+    for hwItem in self.dicts[typeId].values():
+        if hwItem.hwId in hwIdList:
+          hwIdList.remove(hwItem.hwId)
+    return hwIdList
+
 
 #------Temporary stuff below
 
