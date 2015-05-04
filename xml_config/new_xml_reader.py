@@ -1,25 +1,6 @@
 import xml.etree.ElementTree as ET
 from drew_util import *
 
-"""
-stuff i didn't want to delete quite yet
-
-deviceDict = {}
-for d in root.find('devices'):
-  print(d.tag, d.attrib)
-  name = d.find('name').text
-  xml_id = d.get('d_id')
-  mac = d.find('mac').text
-  actions = {}
-  for a in d.find('actions'):
-    a_id = a.get('a_id')
-    actions[a_id] = a.text
-    deviceDict[xml_id] = Device(name, xml_id, mac, actions)
- 
-print(deviceDict)
-print(deviceDict['d0'])
-"""
-
 class XML_Reader():
   def __init__(self, root=None):
     self.root = root
@@ -70,6 +51,8 @@ class XML_Reader():
       # some zones
       self.profiles[xml_id] = Profile(name, xml_id)
 
+"""
+just testing basic use case
 
 print('this is garbage')
 root = ET.parse('config_updated.xml').getroot()
@@ -79,3 +62,4 @@ for d_id in ds:
   d = ds[d_id]
   print('d_id: ', d.name, ', ', d.xml_id, ', ', d.mac, ', ', d.dev_type, ', ', d.enter, ', ', d.exit, ', ', d.zone)
   print('d.enter + d.exit: ',  d.enter + d.exit)
+"""
