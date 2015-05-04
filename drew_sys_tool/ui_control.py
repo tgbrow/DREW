@@ -5,6 +5,7 @@ from ui_wearabledialog import Ui_WearableDialog
 from ui_zonedialog import Ui_ZoneDialog
 from ui_devicedialog import Ui_DeviceDialog
 from ui_configdialog import Ui_ConfigDialog
+from drew_util import *
 
 NUM_DIALOGS = 4
 
@@ -47,15 +48,15 @@ class UiControl:
         # populate tables with current system info
         self.populateTables()
 
-        # enable/disable buttons when table selection changes
-        self.tables[W_IDX].itemSelectionChanged.connect(lambda: self.updateButtonAvailability(W_IDX))
-        self.tables[Z_IDX].itemSelectionChanged.connect(lambda: self.updateButtonAvailability(Z_IDX))
-        self.tables[D_IDX].itemSelectionChanged.connect(lambda: self.updateButtonAvailability(D_IDX))
-        self.tables[C_IDX].itemSelectionChanged.connect(lambda: self.updateButtonAvailability(C_IDX))
+        # enable/disable buttons when table selection changes, etc
+        self.tables[W_IDX].itemSelectionChanged.connect(lambda: self.selectionUpdate(W_IDX))
+        self.tables[Z_IDX].itemSelectionChanged.connect(lambda: self.selectionUpdate(Z_IDX))
+        self.tables[D_IDX].itemSelectionChanged.connect(lambda: self.selectionUpdate(D_IDX))
+        self.tables[C_IDX].itemSelectionChanged.connect(lambda: self.selectionUpdate(C_IDX))
 
-        # set initial button enabled/disabled state
+        # set initial button enabled/disabled state, etc
         for i in range(4):
-            self.updateButtonAvailability(i)
+            self.selectionUpdate(i)
 
         self.mainWindow.show()
 
@@ -72,32 +73,29 @@ class UiControl:
         self.mainUi.buttonEditConfig.clicked.connect(lambda: self.editConfig())
 
         # "Delete" buttons
-        self.mainUi.buttonDeleteWearable.clicked.connect(lambda: self.deleteWearable())
-        self.mainUi.buttonDeleteZone.clicked.connect(lambda: self.deleteZone())
-        self.mainUi.buttonDeleteDevice.clicked.connect(lambda: self.deleteDevice())
+        self.mainUi.buttonDeleteWearable.clicked.connect(lambda: self.deleteTableEntry(W_IDX))
+        self.mainUi.buttonDeleteZone.clicked.connect(lambda: self.deleteTableEntry(Z_IDX))
+        self.mainUi.buttonDeleteDevice.clicked.connect(lambda: self.deleteTableEntry(D_IDX))
 
         # dialog "Cancel" buttons
-        self.dialogUis[W_IDX].buttonCancel.clicked.connect(lambda: self.dialogs[W_IDX].hide())
+        self.dialogUis[W_IDX].buttonCancel.clicked.connect(lambda: self.cancelWearable())
         self.dialogUis[Z_IDX].buttonCancel.clicked.connect(lambda: self.dialogs[Z_IDX].hide())
         self.dialogUis[D_IDX].buttonCancel.clicked.connect(lambda: self.dialogs[D_IDX].hide())
         self.dialogUis[C_IDX].buttonCancel.clicked.connect(lambda: self.dialogs[C_IDX].hide())
 
-        # dialog "Save" buttons
-        # self.dialogUis[W_IDX].buttonSave.clicked.connect(lambda: self.dialogs[W_IDX].hide())
-        # self.dialogUis[Z_IDX].buttonSave.clicked.connect(lambda: self.dialogs[Z_IDX].hide())
-        # self.dialogUis[D_IDX].buttonSave.clicked.connect(lambda: self.dialogs[D_IDX].hide())
-        # self.dialogUis[C_IDX].buttonSave.clicked.connect(lambda: self.dialogs[C_IDX].hide())
+        # dialog "Save" buttons -- TODO
 
     def editWearable(self, isNew):
         self.newFlag = isNew
-        wearable = None
         if (isNew):
             wearable = self.systemState.newWearable()
+            self.currXmlId = wearable.xmlId
         else:
-            wearable = self.systemState.getWearableByName(self.tables[W_IDX].selectedItems()[0].text())
+            wearable = self.systemState.getWearable(self.currXmlId)
         self.dialogUis[W_IDX].inputName.setPlainText(wearable.name)
         self.refreshWearableDropdown()
         self.dialogs[W_IDX].show()
+
 
     def editZone(self, isNew):
         self.newFlag = isNew
@@ -124,29 +122,21 @@ class UiControl:
     def editConfig(self):
         self.dialogs[C_IDX].show()
 
-    # def saveWearable(self):
+    def cancelWearable(self):
+        if (self.newFlag):
+            self.systemState.deleteHardwareItem(W_IDX, self.currXmlId)
+        self.dialogs[W_IDX].hide()
 
-    # def saveZone(self):
+    def deleteTableEntry(self, typeId):
+        self.systemState.deleteHardwareItem(typeId, self.currXmlId)
+        self.tables[typeId].removeRow(self.tables[typeId].currentRow())
 
-    # def saveDevice(self):
-
-    # def saveConfig(self):
-
-    def deleteWearable(self):
-        self.systemState.deleteWearableByName(self.tables[W_IDX].selectedItems()[0].text())
-        self.tables[W_IDX].removeRow(self.tables[W_IDX].currentRow())
-
-    def deleteZone(self):
-        self.systemState.deleteZoneByName(self.tables[Z_IDX].selectedItems()[0].text())
-        self.tables[Z_IDX].removeRow(self.tables[Z_IDX].currentRow())
-
-    def deleteDevice(self):
-        self.systemState.deleteDeviceByName(self.tables[D_IDX].selectedItems()[0].text())
-        self.tables[D_IDX].removeRow(self.tables[D_IDX].currentRow())
-
-    def updateButtonAvailability(self, tableId):
-        shouldEnable = ( len(self.tables[tableId].selectedIndexes()) != 0)
-        buttons = self.buttonGroups[tableId]
+    def selectionUpdate(self, tableIdx):
+        items = self.tables[tableIdx].selectedItems()
+        if (len(items) > 0):
+            self.currXmlId = items[0].data(1)
+        shouldEnable = ( len(self.tables[tableIdx].selectedIndexes()) != 0)
+        buttons = self.buttonGroups[tableIdx]
         for i in range(2): # only update edit & delete buttons
             buttons[i].setEnabled(shouldEnable)
 
@@ -171,13 +161,56 @@ class UiControl:
             self.dialogUis[C_IDX].dropdownZone.addItem("< no zones exist >", None)
 
     def populateTables(self):
-        for wearable in self.systemState.wearables:
+        for wearable in self.systemState.dicts[W_IDX].values():
             self.tables[W_IDX].insertRow(0)
+            # "Name" item with xmlId data
             item = QTableWidgetItem()
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(wearable.name)
+            item.setData(1, wearable.xmlId)
             self.tables[W_IDX].setItem(0, 0, item)
+            # "Wearable ID" item
             item = QTableWidgetItem()
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(str(wearable.hwId))
             self.tables[W_IDX].setItem(0, 1, item)
+
+        for zone in self.systemState.dicts[Z_IDX].values():
+            self.tables[Z_IDX].insertRow(0)
+            # "Name" item with xmlId data
+            item = QTableWidgetItem()
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setText(zone.name)
+            item.setData(1, zone.xmlId)
+            self.tables[Z_IDX].setItem(0, 0, item)
+            # "Module ID" item
+            item = QTableWidgetItem()
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setText(str(zone.hwId))
+            self.tables[Z_IDX].setItem(0, 1, item)
+            # "Threshold" item
+            item = QTableWidgetItem()
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setText(str(zone.threshold))
+            self.tables[Z_IDX].setItem(0, 2, item)
+
+        for device in self.systemState.dicts[D_IDX].values():
+            self.tables[D_IDX].insertRow(0)
+            # "Name" item with xmlId data
+            item = QTableWidgetItem()
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setText(device.name)
+            item.setData(1, device.xmlId)
+            self.tables[D_IDX].setItem(0, 0, item)
+            # "Type" item
+            item = QTableWidgetItem()
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setText(str(device.hwId))
+            self.tables[D_IDX].setItem(0, 1, item)
+            # "State" item
+            item = QTableWidgetItem()
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setText("TODO")
+            self.tables[D_IDX].setItem(0, 2, item)
+
+        # TODO table of device configurations

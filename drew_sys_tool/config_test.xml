@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding='ascii'?>
+<configuration>
+	
+	<devices>
+		<device dId="0">
+			<name>test_device</name>
+			<hwId>AA:BB:CC:DD:EE</hwId>
+			<dev_type>0</dev_type>
+			<enter>2</enter>
+			<exit>1</exit>
+			<zId>0</zId>
+		</device>
+	</devices>
+
+	<wearables>
+		<wearable wId="0">
+			<name>test_wearable</name>
+			<hwId>1234</hwId>
+		</wearable>
+	</wearables>
+
+	<zones>
+		<zone zId="0">
+			<name>test_zone</name>
+			<hwId>5678</hwId>
+			<threshold>100</threshold>
+		</zone>
+	</zones>
+	
+	<profiles>
+		<profile pId="0">
+			<name>profile_name</name>
+				<wId>0</wId>
+			<zId>0</zId>
+		</profile>
+	</profiles>
+
+</configuration>
