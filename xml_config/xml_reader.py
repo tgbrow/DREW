@@ -1,87 +1,65 @@
 import xml.etree.ElementTree as ET
 from drew_util import *
 
-tree = ET.parse('config.xml')
-root = tree.getroot()
+class XML_Reader():
+  def __init__(self, filename="config.xml"):
+    self.root = root
+    self.zones = {}
+    self.devices = {}
+    self.weareables = {}
+    self.profiles = {}
+    print("created XML_Reader")
+    self.__parse()
 
-devices = []
-modules = []
-wearables = []
-zones = []
-configs = []
+  def __parse(self):
+    # parses the file from the root, but doesn't really return anything
+    # parse all the data for devices
+    for d in self.root.find('devices'):
+      print(d.tag, d.attrib)
+      name = d.find('name').text
+      xml_id = d.get('d_id')
+      mac = d.find('mac').text
+      dev_type = int(d.find('dev_type').text)
+      enter = int(d.find('enter').text)
+      exit = int(d.find('exit').text)
+      zone = d.find('z_id').text
+      self.devices[xml_id] = Device(name, xml_id, mac, dev_type, enter, exit, zone)
 
-for device in root.find('devices'):
-  d = Device()
-  d.name = device.find('name').text
-  d.XML_ID = device.get('id')
-  d.MAC = device.find('mac').text
-  devices.append(d)
-  print(device.tag, device.attrib)
+    # parse data for zones
+    for z in self.root.find('zones'):
+      print(z.tag, z.attrib)
+      name = z.find('name').text
+      xml_id = z.get('z_id')
+      hw_id = z.find('hw_id').text
+      threshold = int(z.find('threshold').text)
+      self.zones[xml_id] = Zone(name, xml_id, hw_id, threshold)
 
-print(devices)
+    # parse wearable data
+    for w in self.root.find('wearables'):
+      print(w.tag, w.attrib)
+      name = w.find('name').text
+      xml_id = w.get('w_id')
+      hw_id = w.find('hw_id').text
+      self.weareables[xml_id] = Wearable(name, xml_id, hw_id)
 
+    # parse profile data
+    for p in self.root.find('profiles'):
+      print(p.tag, p.attrib)
+      name = p.find('name').text
+      xml_id = p.get('p_id')
+      # some wearables
+      # some zones
+      self.profiles[xml_id] = Profile(name, xml_id)
 
-for module in root.find('modules'):
-  m = Module()
-  m.name = module.find('name').text
-  m.XML_ID = module.get('id')
-  m.RFID = module.find('RFID').text
-  modules.append(m)
-  print(module.tag, module.attrib)
+"""
+just testing basic use case
 
-print (modules)
-
-for wearable in root.find('wearables'):
-  w = Wearable()
-  w.name = wearable.find('name').text
-  w.XML_ID = wearable.get('id')
-  w.RFID = wearable.find('RFID').text
-  wearables.append(w)
-  print(wearable.tag, wearable.attrib)
-
-print(wearables)
-
-for zone in root.find('zones'):
-  z = Zone()
-  z.name = zone.find('name').text
-  z.XML_ID = zone.get('id')
-  for device in zone.find('devices'):
-    device_id = device.get('id')
-    for i in range(len(devices)):
-      if devices[i].XML_ID == device_id:
-        z.devices.append(devices[i])
-        break
-  for module in zone.find('modules'):
-    module_id = module.get('id')
-    for i in range(len(modules)):
-      if modules[i].XML_ID == module_id:
-        z.modules.append(modules[i])
-        break
-  zones.append(z)
-  print(zone.tag, zone.attrib)
-
-print(zones)
-
-for config in root.find('configs'):
-  c = Config()
-  c.name = config.find('name').text
-  c.XML_ID = config.get('id')
-  for wearable in config.find('wearables'):
-
-    wearable_id = wearable.get('id')
-    for i in range(len(wearables)):
-      if wearables[i].XML_ID == wearable_id:
-        config.wearables.append(wearables[i])
-        break
-  for zone in config.find('zones'):
-    zone_id = zone.get('id')
-    for i in range(len(wearables)):
-      if zones[i].XML_ID == zone_id:
-        config.zones.append(zones[i])
-        break
-  configs.append(c)
-  print(config.tag, config.attrib)
-
-print(configs)
-
-print(configs[0].zones)
+print('this is garbage')
+root = ET.parse('config_updated.xml').getroot()
+reader = XML_Reader(root)
+ds = reader.devices
+for d_id in ds:
+  d = ds[d_id]
+  print('d_id: ', d.name, ', ', d.xml_id, ', ', d.mac, ', ', d.dev_type, ', ', d.enter, ', ', d.exit, ', ', d.zone)
+  print('d.enter + d.exit: ',  d.enter + d.exit)
+"""

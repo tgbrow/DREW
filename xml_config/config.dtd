@@ -1,2 +1,0 @@
-<!ELEMENT configurations (devices, modules, wearables, zones, profiles)>
-<!ELEMENT devices (device(name)*)>

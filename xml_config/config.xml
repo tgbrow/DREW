@@ -1,21 +1,18 @@
 <?xml version="1.0"?>
+
 <configuration>
+	
 	<devices>
 		<device d_id="d0">
 			<name>device_name</name>
 			<mac>XX:XX:XX:XX:XX</mac>
-			<actions>
-				<action a_id="a0">ON</action>
-				<action a_id="a1">OFF</action>
-			</actions>
+			<dev_type>0</dev_type>
+			<enter>2</enter>
+			<exit>1</exit>
+			<z_id>z0</z_id>
 		</device>
 	</devices>
-	<modules>
-		<module m_id="m0">
-			<name>module_name</name>
-			<hw_id>XXXX</hw_id>
-		</module>
-	</modules>
+
 	<wearables>
 		<wearable w_id="w0">
 			<name>wearable_name</name>
@@ -26,30 +23,40 @@
 	<zones>
 		<zone z_id="z0">
 			<name>zone_name</name>
-			<modules>
-				<m_id>m0</m_id>
-			</modules>
+			<hw_id>XXXX</hw_id>
+			<threshold>100</threshold>
 		</zone>
 	</zones>
+	
 	<profiles>
 		<profile p_id="p0">
 			<name>profile_name</name>
-			<wearables>
 				<w_id>w0</w_id>
-			</wearables>
-			<rooms>
-				<room>
-					<z_id>z0</z_id>
-					<threshold>100</threshold>
-					<devices>
-						<device>
-							<d_id>d0</d_id>
-							<on>a0</on>
-							<off>a1</off>
-						</device>
-					</devices>
-				</room>
-			</rooms>
+			<z_id>z0</z_id>
 		</profile>
 	</profiles>
+
 </configuration>
+
+
+<!--
+	<actions>
+		<action a_id="a0">ON</action>
+		<action a_id="a1">OFF</action>
+		<action a_id="a2">Timer</action>
+	</actions>
+
+	<modules>
+		<module m_id="m0">
+			<name>module_name</name>
+			<hw_id>XXXX</hw_id>
+		</module>
+	</modules>
+
+	<m_id>m0</m_id>
+	<devices>
+		<d_id>d0</d_id>
+		<enable>a0</enable>
+		<disable>a2</disable>
+	</devices>
+-->
