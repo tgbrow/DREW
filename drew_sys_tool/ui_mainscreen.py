@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QDialog
 from ui_wearabledialog import Ui_WearableDialog
 from ui_zonedialog import Ui_ZoneDialog
 from ui_devicedialog import Ui_DeviceDialog
-from enum import Enum
+from ui_configdialog import Ui_ConfigDialog
 
 BUT_EDIT    = 0
 BUT_DELETE  = 1
@@ -70,36 +70,36 @@ class Ui_MainScreen(object):
         self.layoutWidget = QtWidgets.QWidget(self.tabHardware)
         self.layoutWidget.setGeometry(QtCore.QRect(10, 170, 451, 25))
         self.layoutWidget.setObjectName("layoutWidget")
-        self.buttonPanelWearable = QtWidgets.QHBoxLayout(self.layoutWidget)
-        self.buttonPanelWearable.setContentsMargins(0, 0, 0, 0)
-        self.buttonPanelWearable.setObjectName("buttonPanelWearable")
+        self.buttonGroupWearable = QtWidgets.QHBoxLayout(self.layoutWidget)
+        self.buttonGroupWearable.setContentsMargins(0, 0, 0, 0)
+        self.buttonGroupWearable.setObjectName("buttonGroupWearable")
         self.buttonEditWearable = QtWidgets.QPushButton(self.layoutWidget)
         self.buttonEditWearable.setObjectName("buttonEditWearable")
-        self.buttonPanelWearable.addWidget(self.buttonEditWearable)
+        self.buttonGroupWearable.addWidget(self.buttonEditWearable)
         self.buttonDeleteWearable = QtWidgets.QPushButton(self.layoutWidget)
         self.buttonDeleteWearable.setObjectName("buttonDeleteWearable")
-        self.buttonPanelWearable.addWidget(self.buttonDeleteWearable)
+        self.buttonGroupWearable.addWidget(self.buttonDeleteWearable)
         self.buttonNewWearable = QtWidgets.QPushButton(self.layoutWidget)
         self.buttonNewWearable.setObjectName("buttonNewWearable")
-        self.buttonPanelWearable.addWidget(self.buttonNewWearable)
+        self.buttonGroupWearable.addWidget(self.buttonNewWearable)
         self.labelWearable = QtWidgets.QLabel(self.tabHardware)
         self.labelWearable.setGeometry(QtCore.QRect(10, 10, 90, 15))
         self.labelWearable.setObjectName("labelWearable")
         self.layoutWidget_2 = QtWidgets.QWidget(self.tabHardware)
         self.layoutWidget_2.setGeometry(QtCore.QRect(10, 570, 451, 25))
         self.layoutWidget_2.setObjectName("layoutWidget_2")
-        self.buttonPanelDevice = QtWidgets.QHBoxLayout(self.layoutWidget_2)
-        self.buttonPanelDevice.setContentsMargins(0, 0, 0, 0)
-        self.buttonPanelDevice.setObjectName("buttonPanelDevice")
+        self.buttonGroupDevice = QtWidgets.QHBoxLayout(self.layoutWidget_2)
+        self.buttonGroupDevice.setContentsMargins(0, 0, 0, 0)
+        self.buttonGroupDevice.setObjectName("buttonGroupDevice")
         self.buttonEditDevice = QtWidgets.QPushButton(self.layoutWidget_2)
         self.buttonEditDevice.setObjectName("buttonEditDevice")
-        self.buttonPanelDevice.addWidget(self.buttonEditDevice)
+        self.buttonGroupDevice.addWidget(self.buttonEditDevice)
         self.buttonDeleteDevice = QtWidgets.QPushButton(self.layoutWidget_2)
         self.buttonDeleteDevice.setObjectName("buttonDeleteDevice")
-        self.buttonPanelDevice.addWidget(self.buttonDeleteDevice)
+        self.buttonGroupDevice.addWidget(self.buttonDeleteDevice)
         self.buttonNewDevice = QtWidgets.QPushButton(self.layoutWidget_2)
         self.buttonNewDevice.setObjectName("buttonNewDevice")
-        self.buttonPanelDevice.addWidget(self.buttonNewDevice)
+        self.buttonGroupDevice.addWidget(self.buttonNewDevice)
         self.labelZone = QtWidgets.QLabel(self.tabHardware)
         self.labelZone.setGeometry(QtCore.QRect(10, 410, 111, 16))
         self.labelZone.setObjectName("labelZone")
@@ -119,18 +119,18 @@ class Ui_MainScreen(object):
         self.layoutWidget_3 = QtWidgets.QWidget(self.tabHardware)
         self.layoutWidget_3.setGeometry(QtCore.QRect(10, 370, 451, 25))
         self.layoutWidget_3.setObjectName("layoutWidget_3")
-        self.buttonPanelZone = QtWidgets.QHBoxLayout(self.layoutWidget_3)
-        self.buttonPanelZone.setContentsMargins(0, 0, 0, 0)
-        self.buttonPanelZone.setObjectName("buttonPanelZone")
+        self.buttonGroupZone = QtWidgets.QHBoxLayout(self.layoutWidget_3)
+        self.buttonGroupZone.setContentsMargins(0, 0, 0, 0)
+        self.buttonGroupZone.setObjectName("buttonGroupZone")
         self.buttonEditZone = QtWidgets.QPushButton(self.layoutWidget_3)
         self.buttonEditZone.setObjectName("buttonEditZone")
-        self.buttonPanelZone.addWidget(self.buttonEditZone)
+        self.buttonGroupZone.addWidget(self.buttonEditZone)
         self.buttonDeleteZone = QtWidgets.QPushButton(self.layoutWidget_3)
         self.buttonDeleteZone.setObjectName("buttonDeleteZone")
-        self.buttonPanelZone.addWidget(self.buttonDeleteZone)
+        self.buttonGroupZone.addWidget(self.buttonDeleteZone)
         self.buttonNewZone = QtWidgets.QPushButton(self.layoutWidget_3)
         self.buttonNewZone.setObjectName("buttonNewZone")
-        self.buttonPanelZone.addWidget(self.buttonNewZone)
+        self.buttonGroupZone.addWidget(self.buttonNewZone)
         self.labelDevice = QtWidgets.QLabel(self.tabHardware)
         self.labelDevice.setGeometry(QtCore.QRect(10, 210, 91, 16))
         self.labelDevice.setObjectName("labelDevice")
@@ -146,36 +146,36 @@ class Ui_MainScreen(object):
         self.tableZone.horizontalHeader().setDefaultSectionSize(224)
         self.tableZone.horizontalHeader().setStretchLastSection(True)
         self.tabWidget.addTab(self.tabHardware, "")
-        self.tabSystem = QtWidgets.QWidget()
-        self.tabSystem.setObjectName("tabSystem")
-        self.tableSystem = QtWidgets.QTableWidget(self.tabSystem)
-        self.tableSystem.setGeometry(QtCore.QRect(10, 10, 450, 551))
-        self.tableSystem.setObjectName("tableSystem")
-        self.tableSystem.setColumnCount(4)
-        self.tableSystem.setRowCount(0)
+        self.tabConfig = QtWidgets.QWidget()
+        self.tabConfig.setObjectName("tabConfig")
+        self.tableConfig = QtWidgets.QTableWidget(self.tabConfig)
+        self.tableConfig.setGeometry(QtCore.QRect(10, 10, 450, 551))
+        self.tableConfig.setObjectName("tableConfig")
+        self.tableConfig.setColumnCount(4)
+        self.tableConfig.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
-        self.tableSystem.setHorizontalHeaderItem(0, item)
+        self.tableConfig.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
-        self.tableSystem.setHorizontalHeaderItem(1, item)
+        self.tableConfig.setHorizontalHeaderItem(1, item)
         item = QtWidgets.QTableWidgetItem()
-        self.tableSystem.setHorizontalHeaderItem(2, item)
+        self.tableConfig.setHorizontalHeaderItem(2, item)
         item = QtWidgets.QTableWidgetItem()
-        self.tableSystem.setHorizontalHeaderItem(3, item)
-        self.tableSystem.horizontalHeader().setDefaultSectionSize(112)
-        self.tableSystem.horizontalHeader().setStretchLastSection(True)
-        self.layoutWidget_4 = QtWidgets.QWidget(self.tabSystem)
+        self.tableConfig.setHorizontalHeaderItem(3, item)
+        self.tableConfig.horizontalHeader().setDefaultSectionSize(112)
+        self.tableConfig.horizontalHeader().setStretchLastSection(True)
+        self.layoutWidget_4 = QtWidgets.QWidget(self.tabConfig)
         self.layoutWidget_4.setGeometry(QtCore.QRect(10, 570, 451, 25))
         self.layoutWidget_4.setObjectName("layoutWidget_4")
-        self.buttonPanelSystem = QtWidgets.QHBoxLayout(self.layoutWidget_4)
-        self.buttonPanelSystem.setContentsMargins(0, 0, 0, 0)
-        self.buttonPanelSystem.setObjectName("buttonPanelSystem")
-        self.buttonEditSystem = QtWidgets.QPushButton(self.layoutWidget_4)
-        self.buttonEditSystem.setObjectName("buttonEditSystem")
-        self.buttonPanelSystem.addWidget(self.buttonEditSystem)
-        self.buttonClearSystem = QtWidgets.QPushButton(self.layoutWidget_4)
-        self.buttonClearSystem.setObjectName("buttonClearSystem")
-        self.buttonPanelSystem.addWidget(self.buttonClearSystem)
-        self.tabWidget.addTab(self.tabSystem, "")
+        self.buttonGroupConfig = QtWidgets.QHBoxLayout(self.layoutWidget_4)
+        self.buttonGroupConfig.setContentsMargins(0, 0, 0, 0)
+        self.buttonGroupConfig.setObjectName("buttonGroupConfig")
+        self.buttonEditConfig = QtWidgets.QPushButton(self.layoutWidget_4)
+        self.buttonEditConfig.setObjectName("buttonEditConfig")
+        self.buttonGroupConfig.addWidget(self.buttonEditConfig)
+        self.buttonClearConfig = QtWidgets.QPushButton(self.layoutWidget_4)
+        self.buttonClearConfig.setObjectName("buttonClearConfig")
+        self.buttonGroupConfig.addWidget(self.buttonClearConfig)
+        self.tabWidget.addTab(self.tabConfig, "")
 
         self.retranslateUi(MainScreen)
         self.tabWidget.setCurrentIndex(0)
@@ -218,17 +218,17 @@ class Ui_MainScreen(object):
         item = self.tableZone.horizontalHeaderItem(1)
         item.setText(_translate("MainScreen", "Module ID"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabHardware), _translate("MainScreen", "Hardware Setup"))
-        item = self.tableSystem.horizontalHeaderItem(0)
+        item = self.tableConfig.horizontalHeaderItem(0)
         item.setText(_translate("MainScreen", "Device"))
-        item = self.tableSystem.horizontalHeaderItem(1)
+        item = self.tableConfig.horizontalHeaderItem(1)
         item.setText(_translate("MainScreen", "Containing Zone"))
-        item = self.tableSystem.horizontalHeaderItem(2)
+        item = self.tableConfig.horizontalHeaderItem(2)
         item.setText(_translate("MainScreen", "Entry Action"))
-        item = self.tableSystem.horizontalHeaderItem(3)
+        item = self.tableConfig.horizontalHeaderItem(3)
         item.setText(_translate("MainScreen", "Exit Action"))
-        self.buttonEditSystem.setText(_translate("MainScreen", "Edit"))
-        self.buttonClearSystem.setText(_translate("MainScreen", "Clear Settings"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSystem), _translate("MainScreen", "System Setup"))
+        self.buttonEditConfig.setText(_translate("MainScreen", "Edit"))
+        self.buttonClearConfig.setText(_translate("MainScreen", "Clear Settings"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabConfig), _translate("MainScreen", "System Setup"))
 
 
 #----------
@@ -245,17 +245,17 @@ class Ui_MainScreen(object):
         self.deviceDialog = QDialog()
         self.deviceUi = Ui_DeviceDialog()
         self.deviceUi.setupUi(self.deviceDialog)
+        self.configDialog = QDialog()
+        self.configUi = Ui_ConfigDialog()
+        self.configUi.setupUi(self.configDialog)
 
+        # group buttons into lists for convenience
         self.wearableButtons = [self.buttonEditWearable, self.buttonDeleteWearable, self.buttonNewWearable]
         self.zoneButtons = [self.buttonEditZone, self.buttonDeleteZone, self.buttonNewZone]
         self.deviceButtons = [self.buttonEditDevice, self.buttonDeleteDevice, self.buttonNewDevice]
-        self.buttonGroups = [self.wearableButtons, self.zoneButtons, self.deviceButtons]
-        self.tables = [self.tableWearable, self.tableZone, self.tableDevice, self.tableSystem]
-
-        # dialog cancel buttons
-        self.wearableUi.buttonCancel.clicked.connect(lambda: self.wearableDialog.hide())
-        self.deviceUi.buttonCancel.clicked.connect(lambda: self.deviceDialog.hide())
-        self.zoneUi.buttonCancel.clicked.connect(lambda: self.zoneDialog.hide())
+        self.configButtons = [self.buttonEditConfig, self.buttonClearConfig]
+        self.buttonGroups = [self.wearableButtons, self.zoneButtons, self.deviceButtons, self.configButtons]
+        self.tables = [self.tableWearable, self.tableZone, self.tableDevice, self.tableConfig]
 
         # "New" buttons
         self.buttonNewWearable.clicked.connect(lambda: self.editWearable(True))
@@ -266,18 +266,31 @@ class Ui_MainScreen(object):
         self.buttonEditWearable.clicked.connect(lambda: self.editWearable(False))
         self.buttonEditZone.clicked.connect(lambda: self.editZone(False))
         self.buttonEditDevice.clicked.connect(lambda: self.editDevice(False))
+        self.buttonEditConfig.clicked.connect(lambda: self.editConfig())
 
         # "Delete" buttons
         # self.buttonDeleteWearable.clicked.connect()
         # self.buttonDeleteZone.clicked.connect()
         # self.buttonDeleteDevice.clicked.connect()
 
-        # enable/disable buttons based on selection
-        for i in range(3):
+        # dialog "Cancel" buttons
+        self.wearableUi.buttonCancel.clicked.connect(lambda: self.wearableDialog.hide())
+        self.deviceUi.buttonCancel.clicked.connect(lambda: self.deviceDialog.hide())
+        self.zoneUi.buttonCancel.clicked.connect(lambda: self.zoneDialog.hide())
+        self.configUi.buttonCancel.clicked.connect(lambda: self.configDialog.hide())
+
+        #dialog "Save" buttons
+        # self.wearableUi.buttonSave.clicked.connect(lambda: self.wearableDialog.hide())
+        # self.deviceUi.buttonSave.clicked.connect(lambda: self.deviceDialog.hide())
+        # self.zoneUi.buttonSave.clicked.connect(lambda: self.zoneDialog.hide())
+        # self.configUi.buttonSave.clicked.connect(lambda: self.configDialog.hide())
+
+        # enable/disable buttons based on table selection
+        for i in range(4):
             self.tables[i].itemSelectionChanged.connect(lambda: self.updateButtonAvailability(i))
 
-        # set initial state of UI elements
-        for i in range(3):
+        # set initial button enabled/disabled state
+        for i in range(4):
             self.updateButtonAvailability(i)
         
     def editWearable(self, isNew):
@@ -304,6 +317,18 @@ class Ui_MainScreen(object):
         self.refreshDeviceDropdown()
         self.deviceDialog.show()
 
+    def editConfig(self):
+        self.configDialog.show()
+
+    # def saveWearable(self):
+
+    # def saveZone(self):
+
+    # def saveDevice(self):
+
+    # def saveConfig(self):
+
+
     def updateButtonAvailability(self, tableId):
         shouldEnable = ( len(self.tables[tableId].selectedIndexes()) != 0)
         buttons = self.buttonGroups[tableId]
@@ -312,12 +337,20 @@ class Ui_MainScreen(object):
 
     def refreshWearableDropdown(self):
         # TODO
-        self.wearableUi.dropdownWearable.addItem("< no unassigned wearables detected >", None)
+        if (self.wearableUi.dropdownWearable.count() == 0):
+            self.wearableUi.dropdownWearable.addItem("< no unassigned wearables detected >", None)
 
     def refreshZoneModuleDropdown(self):
         # TODO
-        self.zoneUi.dropdownModule.addItem("< no unassigned modules detected >", None)
+        if (self.wearableUi.dropdownModule.count() == 0):
+            self.zoneUi.dropdownModule.addItem("< no unassigned modules detected >", None)
 
     def refreshDeviceDropdown(self):
         # TODO
-        self.deviceUi.dropdownDevice.addItem("< no unassigned devices detected >", None)
+        if (self.wearableUi.dropdownDevice.count() == 0):
+            self.deviceUi.dropdownDevice.addItem("< no unassigned devices detected >", None)
+
+    def refreshConfigDropdowns(self):
+        # TODO
+        if (self.wearableUi.dropdownZone.count() == 0):
+            self.configUi.dropdownZone.addItem("< no zones exist >", None)

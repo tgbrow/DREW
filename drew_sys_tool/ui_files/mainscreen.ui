@@ -312,11 +312,11 @@
      </column>
     </widget>
    </widget>
-   <widget class="QWidget" name="tabSystem">
+   <widget class="QWidget" name="tabConfig">
     <attribute name="title">
      <string>System Setup</string>
     </attribute>
-    <widget class="QTableWidget" name="tableSystem">
+    <widget class="QTableWidget" name="tableConfig">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -361,16 +361,16 @@
        <height>25</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="buttonGroupSystem">
+     <layout class="QHBoxLayout" name="buttonGroupConfig">
       <item>
-       <widget class="QPushButton" name="buttonEditSystem">
+       <widget class="QPushButton" name="buttonEditConfig">
         <property name="text">
          <string>Edit</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="buttonClearSystem">
+       <widget class="QPushButton" name="buttonClearConfig">
         <property name="text">
          <string>Clear Settings</string>
         </property>
