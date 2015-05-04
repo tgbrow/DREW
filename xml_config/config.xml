@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<configuration>
+	<devices>
+		<device d_id="d0">
+			<name>device_name</name>
+			<mac>XX:XX:XX:XX:XX</mac>
+			<actions>
+				<action a_id="a0">ON</action>
+				<action a_id="a1">OFF</action>
+			</actions>
+		</device>
+	</devices>
+	<modules>
+		<module m_id="m0">
+			<name>module_name</name>
+			<hw_id>XXXX</hw_id>
+		</module>
+	</modules>
+	<wearables>
+		<wearable w_id="w0">
+			<name>wearable_name</name>
+			<hw_id>XXXX</hw_id>
+		</wearable>
+	</wearables>
+
+	<zones>
+		<zone z_id="z0">
+			<name>zone_name</name>
+			<modules>
+				<m_id>m0</m_id>
+			</modules>
+		</zone>
+	</zones>
+	<profiles>
+		<profile p_id="p0">
+			<name>profile_name</name>
+			<wearables>
+				<w_id>w0</w_id>
+			</wearables>
+			<rooms>
+				<room>
+					<z_id>z0</z_id>
+					<threshold>100</threshold>
+					<devices>
+						<device>
+							<d_id>d0</d_id>
+							<on>a0</on>
+							<off>a1</off>
+						</device>
+					</devices>
+				</room>
+			</rooms>
+		</profile>
+	</profiles>
+</configuration>

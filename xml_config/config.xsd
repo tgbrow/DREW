@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<xs:schema>
+	<xs:complexType name="Device">
+		<xs:attribute name="id" type="xs:string"/>
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string"/>
+			<xs:element name="MAC" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="Module">
+		<xs:attribute name="id" type="xs:string"/>
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string"/>
+			<xs:element name="HW_ID" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="Wearable">
+		<xs:attribute name="id" type="xs:string"/>
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string"/>
+			<xs:element name="HW_ID" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--
+	<xs:complexType name="Zone">
+		<xs:attribute name="id" type="xs:string"/>
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string"/>
+			<xs:sequence>
+				<xs:element name="Device"/>
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+	-->
+</xs:schema>
