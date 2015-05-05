@@ -1,12 +1,5 @@
 import xml.etree.ElementTree as ET
-
-NUM_DIALOGS = 4
-
-# table & dialog type IDs
-W_TID = 0 # wearable
-Z_TID = 1 # zone
-D_TID = 2 # (connected) device
-C_TID = 3 # (device) configuration
+from constants import *
 
 class Zone():
   def __init__(self, name='default_zone', xmlId=None, hwId=None, threshold=None):
@@ -16,11 +9,11 @@ class Zone():
     self.threshold = threshold
 
 class Device():
-  def __init__(self, name='default_device', xmlId=None, hwId=None, dev_type=0, enter=1, exit=0, zone=None):
+  def __init__(self, name='default_device', xmlId=None, hwId=None, devType=0, enter=2, exit=1, zone=None):
     self.name = name
     self.xmlId = xmlId
     self.hwId = hwId
-    self.dev_type = dev_type
+    self.devType = devType
     self.enter = enter
     self.exit = exit
     self.zone = zone
@@ -50,11 +43,11 @@ class XmlControl():
       name = d.find('name').text
       xmlId = int(d.get('dId'))
       hwId = d.find('hwId').text
-      dev_type = int(d.find('dev_type').text)
+      devType = int(d.find('devType').text)
       enter = int(d.find('enter').text)
       exit = int(d.find('exit').text)
       zone = int(d.find('zId').text)
-      self.devices[xmlId] = Device(name, xmlId, hwId, dev_type, enter, exit, zone)
+      self.devices[xmlId] = Device(name, xmlId, hwId, devType, enter, exit, zone)
 
     # parse data for zones
     self.zones = {}
@@ -90,10 +83,22 @@ class SystemState:
     return xmlId
 
   def newWearable(self):
-    xmlId = self.getXmlId(W_TID)
+    xmlId = self.getXmlId(TID_W)
     wearable = Wearable("New Wearable", xmlId, 0)
-    self.dicts[W_TID][xmlId] = wearable
+    self.dicts[TID_W][xmlId] = wearable
     return wearable
+
+  def newZone(self):
+    xmlId = self.getXmlId(TID_Z)
+    zone = Zone("New Zone", xmlId, 0, 0)
+    self.dicts[TID_Z][xmlId] = zone
+    return zone
+
+  def newDevice(self):
+    xmlId = self.getXmlId(TID_D)
+    device = Device("New Device", xmlId, 0, 0, 0, None)
+    self.dicts[TID_D][xmlId] = device
+    return device
 
   def getHardwareObject(self, typeId, xmlId):
     return self.dicts[typeId][xmlId]
@@ -116,5 +121,5 @@ class SystemState:
 #------Temporary stuff below
 
   def debugAddWearable(self, name, hwId):
-    xmlId = self.getXmlId(W_TID)
-    self.dicts[W_TID][xmlId] = Wearable(name, xmlId, hwId)
+    xmlId = self.getXmlId(TID_W)
+    self.dicts[TID_W][xmlId] = Wearable(name, xmlId, hwId)

@@ -49,7 +49,6 @@ class Ui_DeviceDialog(object):
         self.dropdownType = QtWidgets.QComboBox(DeviceDialog)
         self.dropdownType.setGeometry(QtCore.QRect(20, 210, 361, 22))
         self.dropdownType.setObjectName("dropdownType")
-        self.dropdownType.addItem("")
 
         self.retranslateUi(DeviceDialog)
         QtCore.QMetaObject.connectSlotsByName(DeviceDialog)
@@ -63,5 +62,4 @@ class Ui_DeviceDialog(object):
         self.buttonCancel.setText(_translate("DeviceDialog", "Cancel"))
         self.buttonSave.setText(_translate("DeviceDialog", "Save"))
         self.labelType.setText(_translate("DeviceDialog", "Device Type:"))
-        self.dropdownType.setItemText(0, _translate("DeviceDialog", "Plugable Outlet Switch"))
 

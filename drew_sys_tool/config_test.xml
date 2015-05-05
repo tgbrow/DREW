@@ -4,8 +4,8 @@
 	<devices>
 		<device dId="0">
 			<name>test_device</name>
-			<hwId>AA:BB:CC:DD:EE</hwId>
-			<dev_type>0</dev_type>
+			<hwId>2323</hwId>
+			<devType>0</devType>
 			<enter>2</enter>
 			<exit>1</exit>
 			<zId>0</zId>
@@ -23,7 +23,7 @@
 		<zone zId="0">
 			<name>test_zone</name>
 			<hwId>5678</hwId>
-			<threshold>100</threshold>
+			<threshold>20</threshold>
 		</zone>
 	</zones>
 

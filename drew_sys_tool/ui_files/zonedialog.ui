@@ -116,7 +116,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="labelThreshold">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -129,7 +129,7 @@
     <string>Zone Threshold (module to wearable):</string>
    </property>
   </widget>
-  <widget class="QSlider" name="horizontalSlider">
+  <widget class="QSlider" name="sliderThreshold">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -142,7 +142,7 @@
     <enum>Qt::Horizontal</enum>
    </property>
   </widget>
-  <widget class="QSpinBox" name="spinBox">
+  <widget class="QSpinBox" name="spinnerThreshold">
    <property name="geometry">
     <rect>
      <x>340</x>
