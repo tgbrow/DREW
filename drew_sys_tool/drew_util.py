@@ -66,6 +66,55 @@ class XmlControl():
       hwId = w.find('hwId').text
       self.wearables[xmlId] = Wearable(name, xmlId, hwId)
 
+  def save(self):
+    if self.filename == None:
+      return
+
+    configuration = ET.Element('configuration')
+    devices = ET.SubElement(configuration, 'devices')
+    for d in self.devices.values():
+      device = ET.SubElement(devices, 'device')
+      device.set('dId', str(d.xmlId))
+      name = ET.SubElement(device, 'name')
+      name.text = str(d.name)
+      hwId = ET.SubElement(device, 'hwId')
+      hwId.text = str(d.hwId)
+      devType = ET.SubElement(device, 'devType')
+      devType.text = str(d.devType)
+      enter = ET.SubElement(device, 'enter')
+      enter.text = str(d.enter)
+      exit = ET.SubElement(device, 'exit')
+      exit.text = str(d.exit)
+      zId = ET.SubElement(device, 'zId')
+      zId.text = str(d.zone)
+
+    wearables = ET.SubElement(configuration, 'wearables')
+    for w in self.wearables.values():
+      wearable = ET.SubElement(wearables, 'wearable')
+      wearable.set('wId', str(w.xmlId))
+      name = ET.SubElement(wearable, 'name')
+      name.text = str(w.name)
+      hwId = ET.SubElement(wearable, 'hwId')
+      hwId.text = str(w.hwId)
+
+    zones = ET.SubElement(configuration, 'zones')
+    for z in self.zones.values():
+      zone = ET.SubElement(zones, 'zone')
+      zone.set('zId', str(z.xmlId))
+      name = ET.SubElement(zone, 'name')
+      name.text = str(z.name)
+      hwId = ET.SubElement(zone, 'hwId')
+      hwId.text = str(z.hwId)
+      threshold = ET.SubElement(zone, 'threshold')
+      threshold.text = str(z.threshold)
+
+    # do the actual writing
+    rough_string = ET.tostring(configuration, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    f = open(filename, 'w')
+    f.write(reparsed.toprettyxml(indent='\t'))
+    f.close()
+
 
 class SystemState:
   def __init__(self, filename):
