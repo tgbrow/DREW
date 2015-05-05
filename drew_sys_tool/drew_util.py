@@ -1,5 +1,7 @@
 import xml.etree.ElementTree as ET
+from xml.dom import minidom
 from constants import *
+import sys
 
 class Zone():
   def __init__(self, name='default_zone', xmlId=None, hwId=None, threshold=None):
