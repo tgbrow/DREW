@@ -4,6 +4,11 @@ TID_Z = 1 # zone
 TID_D = 2 # (connected) device
 TID_C = 3 # (device) configuration
 
+# tab indexes
+TAB_STAT = 0 # status
+TAB_HW   = 1 # hardware setup
+TAB_SYS  = 2 # system setup
+
 NUM_DIALOGS = 4
 
 PLUGABLE_ACTIONS = {0: "Ignore", 1: "Turn Off", 2: "Turn On"}

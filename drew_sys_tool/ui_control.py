@@ -18,7 +18,9 @@ class UiControl:
 
         self.dialogs = []
         for i in range(NUM_DIALOGS):
-            self.dialogs.append(QDialog())
+            dialog = QDialog()
+            dialog.setWindowFlags(QtCore.Qt.CustomizeWindowHint|QtCore.Qt.WindowTitleHint)
+            self.dialogs.append(dialog)
 
         self.dialogUis = []
         self.dialogUis.append(Ui_WearableDialog())
@@ -39,7 +41,7 @@ class UiControl:
         self.connectUiElements()
 
         # populate tables with current system info
-        self.populateTables()
+        self.populateHardwareTables()
 
         # populate device type dropdown
         dropdown = self.dialogUis[TID_D].dropdownType
@@ -69,19 +71,21 @@ class UiControl:
         self.mainUi.buttonDeleteWearable.clicked.connect(lambda: self.deleteTableEntry(TID_W))
         self.mainUi.buttonDeleteZone.clicked.connect(lambda: self.deleteTableEntry(TID_Z))
         self.mainUi.buttonDeleteDevice.clicked.connect(lambda: self.deleteTableEntry(TID_D))
+        self.mainUi.buttonClearConfig.clicked.connect(lambda: self.clearConfig())
 
-        # dialog "Cancel" buttons
+        # dialog "Cancel" buttons -- TODO
         self.dialogUis[TID_W].buttonCancel.clicked.connect(lambda: self.cancelWearable())
         self.dialogUis[TID_Z].buttonCancel.clicked.connect(lambda: self.dialogs[TID_Z].hide())
         self.dialogUis[TID_D].buttonCancel.clicked.connect(lambda: self.dialogs[TID_D].hide())
         self.dialogUis[TID_C].buttonCancel.clicked.connect(lambda: self.dialogs[TID_C].hide())
 
-        # dialog "Save" buttons -- TODO
+        # dialog "Save" buttons
         self.dialogUis[TID_W].buttonSave.clicked.connect(lambda: self.saveWearable())
         self.dialogUis[TID_Z].buttonSave.clicked.connect(lambda: self.saveZone())
         self.dialogUis[TID_D].buttonSave.clicked.connect(lambda: self.saveDevice())
+        self.dialogUis[TID_C].buttonSave.clicked.connect(lambda: self.saveConfig())
 
-        # dialog "Refresh List" buttons -- TODO
+        # dialog "Refresh List" buttons
         self.dialogUis[TID_W].buttonRefresh.clicked.connect(lambda: self.refreshWearableDropdown())
         self.dialogUis[TID_Z].buttonRefresh.clicked.connect(lambda: self.refreshZoneModuleDropdown())
         self.dialogUis[TID_D].buttonRefresh.clicked.connect(lambda: self.refreshDeviceDropdown())
@@ -97,6 +101,18 @@ class UiControl:
         slider = self.dialogUis[TID_Z].sliderThreshold
         spinner.valueChanged.connect(lambda: slider.setValue(spinner.value()))
         slider.valueChanged.connect(lambda: spinner.setValue(slider.value()))
+
+        # 
+        tabs = self.mainUi.tabWidget
+        tabs.currentChanged.connect(lambda: self.tabChange(tabs.currentIndex()))
+
+    def tabChange(self, tabNum):
+        if (tabNum == TAB_STAT):
+            return # TODO -- update status table
+        elif (tabNum == TAB_HW):
+            return # TODO -- (maybe do nothing, actually)
+        else: # tabNum == TAB_SYS 
+            self.createConfigTable()
 
     def editWearable(self, isNew):
         self.newFlag = isNew
@@ -133,6 +149,9 @@ class UiControl:
         self.dialogs[TID_D].show()
 
     def editConfig(self):
+        device = self.systemState.getHardwareObject(TID_D, self.currXmlId)
+        self.dialogUis[TID_C].labelConfig.setText("Configuration for \"" + device.name + "\"")
+        self.populateConfigDropdowns(device)
         self.dialogs[TID_C].show()
 
     def cancelWearable(self):
@@ -164,10 +183,28 @@ class UiControl:
         device.devType = self.dialogUis[TID_D].dropdownType.currentData()
         self.updateDeviceTable(device, self.newFlag)
         self.dialogs[TID_D].hide()
+        # TODO -- disallow non-unique names and hwId of -1 (i.e. the "no devices" option)
+
+    def saveConfig(self):
+        configUi = self.dialogUis[TID_C]
+        device = self.systemState.getHardwareObject(TID_D, self.currXmlId)
+        device.zone = configUi.dropdownZone.currentData()
+        device.enter = configUi.dropdownEntryAction.currentData()
+        device.exit = configUi.dropdownExitAction.currentData()
+        self.updateConfigTableEntry(device)
+        self.dialogs[TID_C].hide()
 
     def deleteTableEntry(self, typeId):
+        # TODO -- handle (attempted) deletion of a zone used by device config(s)
         self.systemState.deleteHardwareObject(typeId, self.currXmlId)
         self.tables[typeId].removeRow(self.tables[typeId].currentRow())
+
+    def clearConfig(self):
+        device = self.systemState.getHardwareObject(TID_D, self.currXmlId)
+        device.zone = -1
+        device.enter = 0
+        device.exit = 0
+        self.updateConfigTableEntry(device)
 
     def selectionUpdate(self, tableIdx):
         items = self.tables[tableIdx].selectedItems()
@@ -184,7 +221,7 @@ class UiControl:
         dropdown.clear()
 
         if (len(hwIdList) == 0):
-            dropdown.addItem("< no unassigned wearables detected >", -1)
+            dropdown.addItem("[no unassigned wearables detected]", -1)
         else:
             for hwId in hwIdList:
                 dropdown.addItem(str(hwId), hwId)
@@ -201,7 +238,7 @@ class UiControl:
         dropdown.clear()
 
         if (len(hwIdList) == 0):
-            dropdown.addItem("< no unassigned modules detected >", -1)
+            dropdown.addItem("[no unassigned modules detected]", -1)
         else:
             for hwId in hwIdList:
                 dropdown.addItem(str(hwId), hwId)
@@ -218,7 +255,7 @@ class UiControl:
         dropdown.clear()
 
         if (len(hwIdList) == 0):
-            dropdown.addItem("< no unassigned devices detected >", None)
+            dropdown.addItem("[no unassigned devices detected]", -1)
         else:
             for hwId in hwIdList:
                 dropdown.addItem(str(hwId), hwId)
@@ -229,12 +266,34 @@ class UiControl:
             dropdown.insertItem(0, str(device.hwId), int(device.hwId))
             dropdown.setCurrentIndex(0)
 
-    def refreshConfigDropdowns(self):
-        # TODO
-        if (self.dialogUis[TID_C].dropdownZone.count() == 0):
-            self.dialogUis[TID_C].dropdownZone.addItem("< no zones exist >", None)
+    def populateConfigDropdowns(self, device):
+        configUi = self.dialogUis[TID_C]
+        dropdown = configUi.dropdownZone
+        dropdown.clear()
 
-    def populateTables(self):
+        for zone in self.systemState.dicts[TID_Z].values():
+            dropdown.addItem(zone.name, zone.xmlId)
+            if (zone.xmlId == device.zone):
+                dropdown.setCurrentIndex(dropdown.count()-1)
+
+        if (dropdown.count() == 0):
+            dropdown.addItem("[no zones exist]", -1)
+
+        actions = DEVICE_ACTIONS[device.devType]
+        dropdown = configUi.dropdownEntryAction
+        dropdown.clear()
+        dropdown2 = configUi.dropdownExitAction
+        dropdown2.clear()
+
+        for actionId in DEVICE_ACTIONS[device.devType].keys():
+            dropdown.addItem(actions[actionId], actionId)
+            if (actionId == device.enter):
+                dropdown.setCurrentIndex(dropdown.count()-1)
+            dropdown2.addItem(actions[actionId], actionId)
+            if (actionId == device.exit):
+                dropdown2.setCurrentIndex(dropdown2.count()-1)
+
+    def populateHardwareTables(self):
         for wearable in self.systemState.dicts[TID_W].values():
             self.updateWearableTable(wearable, True)
 
@@ -314,3 +373,48 @@ class UiControl:
             items[0].setText(device.name)
             items[1].setText(DEVICE_TYPES[device.devType])
             items[2].setText("TODO")
+
+    def createConfigTable(self):
+        configTable = self.tables[TID_C]
+        configTable.clearContents()
+        for i in range(configTable.rowCount()):
+            configTable.removeRow(0)
+        for device in self.systemState.dicts[TID_D].values():
+            configTable.insertRow(0)
+            # "Device" item with xmlId data
+            item = QTableWidgetItem()
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setText(device.name)
+            item.setData(1, device.xmlId)
+            configTable.setItem(0, 0, item)
+            # "Containing Zone" item
+            item = QTableWidgetItem()
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            if (device.zone == -1):
+                text = "[unassigned]"
+            else:
+                text = self.systemState.dicts[TID_Z][device.zone].name
+            item.setText(text)
+            item.setData(1, device.zone)
+            configTable.setItem(0, 1, item)
+            # "Entry Action" item
+            item = QTableWidgetItem()
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setText(DEVICE_ACTIONS[device.devType][device.enter])
+            configTable.setItem(0, 2, item)
+            # "Exit Action" item
+            item = QTableWidgetItem()
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setText(DEVICE_ACTIONS[device.devType][device.exit])
+            configTable.setItem(0, 3, item)
+
+    def updateConfigTableEntry(self, device):
+        items = self.tables[TID_C].selectedItems()
+        if (device.zone == -1):
+            text = "[unassigned]"
+        else:
+            text = self.systemState.dicts[TID_Z][device.zone].name
+        items[1].setText(text)
+        items[1].setData(1, device.zone)
+        items[2].setText(DEVICE_ACTIONS[device.devType][device.enter])
+        items[3].setText(DEVICE_ACTIONS[device.devType][device.exit])
