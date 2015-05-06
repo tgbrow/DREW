@@ -65,6 +65,12 @@
      <property name="alternatingRowColors">
       <bool>false</bool>
      </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
      <attribute name="horizontalHeaderDefaultSectionSize">
       <number>224</number>
      </attribute>
@@ -98,6 +104,9 @@
        <width>450</width>
        <height>130</height>
       </rect>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
      </property>
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
@@ -223,6 +232,9 @@
        <height>130</height>
       </rect>
      </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
@@ -306,6 +318,9 @@
        <height>130</height>
       </rect>
      </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
@@ -347,6 +362,9 @@
        <width>450</width>
        <height>551</height>
       </rect>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
      </property>
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>

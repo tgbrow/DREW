@@ -11,7 +11,7 @@ class Zone():
     self.threshold = threshold
 
 class Device():
-  def __init__(self, name='default_device', xmlId=None, hwId=None, devType=0, enter=2, exit=1, zone=None):
+  def __init__(self, name='default_device', xmlId=None, hwId=None, devType=0, enter=2, exit=1, zone=-1):
     self.name = name
     self.xmlId = xmlId
     self.hwId = hwId
@@ -147,7 +147,7 @@ class SystemState:
 
   def newDevice(self):
     xmlId = self.getXmlId(TID_D)
-    device = Device("New Device", xmlId, 0, 0, 0, None)
+    device = Device("New Device", xmlId, 0, 0, 0, 0, -1)
     self.dicts[TID_D][xmlId] = device
     return device
 
