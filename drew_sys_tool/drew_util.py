@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from constants import *
 import sys
+import libbtaps
 
 class Zone():
   def __init__(self, name='default_zone', xmlId=None, hwId=None, threshold=None):
@@ -174,3 +175,50 @@ class SystemState:
   def debugAddWearable(self, name, hwId):
     xmlId = self.getXmlId(TID_W)
     self.dicts[TID_W][xmlId] = Wearable(name, xmlId, hwId)
+
+# Class that controls bluetooth plugable devices
+# connect and disconnect functions don't necessarily need to be public
+class BtControl():
+  def __init__(self):
+    self.currentDevice = None
+    self.busy = False
+    self.connected = False
+    self.btaps = None
+
+  def connect(self, hwId):
+    # connect to a the given bluetooth device
+    self.currentDevice = hwId
+    self.btaps = libbtaps.BTaps(hwId)
+    self.connected = self.btaps.connect()
+    if self.connected:
+      print('Successfully connected to Bluetooth Device, hwId: ', hwId)
+    else:
+      print('Failed to connect to the given Bluetooth Device, hwId: ', hwId)
+
+  def disconnect(self):
+    #disconnect from the current device
+    if self.btaps != None:
+      self.btaps.disconnect()
+      self.connected = False
+      self.btaps = None
+      print('Disconnected from Bluetooth Device, hwId: ', self.currentDevice)
+
+
+  def setDeviceState(self, hwId, action):
+    if action == 0:
+      #ignore the device
+      return
+    else:
+      self.connect(hwId)
+      if action == 1:
+        #turn device off
+        #print('Turning off Bluetooth Device, hwId: ', hwId)
+        self.btaps.set_switch(False)
+      elif action == 2:
+        #turn device on
+        #print('Turning on Bluetooth Device, hwId: ', hwId)
+        self.btaps.set_switch(True)
+      #else:
+      #  #unknown action, do nothing
+      #  print('Unknown action for Bluetooth Device, hwId: ', hwId)
+      self.disconnect()
