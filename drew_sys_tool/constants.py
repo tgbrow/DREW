@@ -17,3 +17,5 @@ PLUGABLE_STATES = {0: "Unavailable", 1: "Off", 2: "On"}
 DEVICE_TYPES = {0: "Plugable Outlet Switch"}
 DEVICE_ACTIONS = {0: PLUGABLE_ACTIONS}
 DEVICE_STATES = {0: PLUGABLE_STATES}
+
+MESSAGE_TYPE = {1: "WearablePayload", 2: "ZonePayload", 4: "ZoneAck"}

@@ -205,11 +205,11 @@ class BtControl():
 
 
   def setDeviceState(self, hwId, action):
-    if action == 0:
-      #ignore the device
+    if action == 0 or not self.connected:
+      #ignore the device or not connected
       return
     else:
-      self.connect(hwId)
+      # self.connect(hwId)
       if action == 1:
         #turn device off
         #print('Turning off Bluetooth Device, hwId: ', hwId)
@@ -221,4 +221,23 @@ class BtControl():
       #else:
       #  #unknown action, do nothing
       #  print('Unknown action for Bluetooth Device, hwId: ', hwId)
-      self.disconnect()
+      # self.disconnect()
+
+  def getDeviceState(self, hwId):
+    # self.connect(hwId)
+    if not self.connected:
+      return
+    state = -1
+    if self.btaps.get_switch_state()[0]:
+      state = 2
+    else:
+      state = 1
+    # self.disconnect()
+    return state
+
+class SerialMessage():
+  def __init__(self, messageType, wearableId, zoneId, signalStrength):
+    self.messageType = messageType
+    self.wearableId = wearableId
+    self.zoneId = zoneId
+    self.signalStrength = signalStrength
