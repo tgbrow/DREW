@@ -11,6 +11,7 @@ from constants import *
 class UiControl:
     def __init__(self, systemState):
         self.systemState = systemState
+        self.currXmlId = [-1, -1, -1, -1]
 
         self.mainWindow = QWidget()
         self.mainUi = Ui_MainScreen()
@@ -74,9 +75,9 @@ class UiControl:
         self.mainUi.buttonClearConfig.clicked.connect(lambda: self.clearConfig())
 
         # dialog "Cancel" buttons -- TODO
-        self.dialogUis[TID_W].buttonCancel.clicked.connect(lambda: self.cancelWearable())
-        self.dialogUis[TID_Z].buttonCancel.clicked.connect(lambda: self.dialogs[TID_Z].hide())
-        self.dialogUis[TID_D].buttonCancel.clicked.connect(lambda: self.dialogs[TID_D].hide())
+        self.dialogUis[TID_W].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_W))
+        self.dialogUis[TID_Z].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_Z))
+        self.dialogUis[TID_D].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_D))
         self.dialogUis[TID_C].buttonCancel.clicked.connect(lambda: self.dialogs[TID_C].hide())
 
         # dialog "Save" buttons
@@ -118,10 +119,10 @@ class UiControl:
         self.newFlag = isNew
         if (isNew):
             wearable = self.systemState.newWearable()
-            self.currXmlId = wearable.xmlId
+            self.currXmlId[TID_W] = wearable.xmlId
         else:
-            wearable = self.systemState.getHardwareObject(TID_W, self.currXmlId)
-        self.dialogUis[TID_W].inputName.setPlainText(wearable.name)
+            wearable = self.systemState.getHardwareObject(TID_W, self.currXmlId[TID_W])
+        self.dialogUis[TID_W].inputName.setText(wearable.name)
         self.refreshWearableDropdown()
         self.dialogs[TID_W].show()
 
@@ -129,10 +130,10 @@ class UiControl:
         self.newFlag = isNew
         if (isNew):
             zone = self.systemState.newZone()
-            self.currXmlId = zone.xmlId
+            self.currXmlId[TID_Z] = zone.xmlId
         else:
-            zone = self.systemState.getHardwareObject(TID_Z, self.currXmlId)
-        self.dialogUis[TID_Z].inputName.setPlainText(zone.name)
+            zone = self.systemState.getHardwareObject(TID_Z, self.currXmlId[TID_Z])
+        self.dialogUis[TID_Z].inputName.setText(zone.name)
         self.dialogUis[TID_Z].spinnerThreshold.setValue(zone.threshold)
         self.refreshZoneModuleDropdown()
         self.dialogs[TID_Z].show()
@@ -141,66 +142,71 @@ class UiControl:
         self.newFlag = isNew
         if (isNew):
             device = self.systemState.newDevice()
-            self.currXmlId = device.xmlId
+            self.currXmlId[TID_D] = device.xmlId
         else:
-            device = self.systemState.getHardwareObject(TID_D, self.currXmlId)
-        self.dialogUis[TID_D].inputName.setPlainText(device.name)
+            device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_D])
+        self.dialogUis[TID_D].inputName.setText(device.name)
         self.refreshDeviceDropdown()
         self.dialogs[TID_D].show()
 
     def editConfig(self):
-        device = self.systemState.getHardwareObject(TID_D, self.currXmlId)
+        device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_C])
         self.dialogUis[TID_C].labelConfig.setText("Configuration for \"" + device.name + "\"")
         self.populateConfigDropdowns(device)
         self.dialogs[TID_C].show()
 
-    def cancelWearable(self):
+    def cancelHardwareDialog(self, typeId):
         if (self.newFlag):
-            self.systemState.deleteHardwareObject(TID_W, self.currXmlId)
-        self.dialogs[TID_W].hide()
+            self.systemState.deleteHardwareObject(typeId, self.currXmlId[typeId])
+        self.selectionUpdate(typeId)
+        self.dialogs[typeId].hide()
 
     def saveWearable(self):
-        wearable = self.systemState.getHardwareObject(TID_W, self.currXmlId)
-        wearable.name = self.dialogUis[TID_W].inputName.toPlainText()
+        wearable = self.systemState.getHardwareObject(TID_W, self.currXmlId[TID_W])
+        wearable.name = self.dialogUis[TID_W].inputName.text()
         wearable.hwId = self.dialogUis[TID_W].dropdownWearable.currentData()
         self.updateWearableTable(wearable, self.newFlag)
+        self.selectionUpdate(TID_W)
         self.dialogs[TID_W].hide()
         # TODO -- disallow non-unique names and hwId of -1 (i.e. the "no wearables" option)
 
     def saveZone(self):
-        zone = self.systemState.getHardwareObject(TID_Z, self.currXmlId)
-        zone.name = self.dialogUis[TID_Z].inputName.toPlainText()
+        zone = self.systemState.getHardwareObject(TID_Z, self.currXmlId[TID_Z])
+        zone.name = self.dialogUis[TID_Z].inputName.text()
         zone.hwId = self.dialogUis[TID_Z].dropdownModule.currentData()
         zone.threshold = self.dialogUis[TID_Z].spinnerThreshold.value()
         self.updateZoneTable(zone, self.newFlag)
+        self.selectionUpdate(TID_Z)
         self.dialogs[TID_Z].hide()
         # TODO -- disallow non-unique names and hwId of -1 (i.e. the "no modules" option)
 
     def saveDevice(self):
-        device = self.systemState.getHardwareObject(TID_D, self.currXmlId)
-        device.name = self.dialogUis[TID_D].inputName.toPlainText()
+        device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_D])
+        device.name = self.dialogUis[TID_D].inputName.text()
         device.hwId = self.dialogUis[TID_D].dropdownDevice.currentData()
         device.devType = self.dialogUis[TID_D].dropdownType.currentData()
         self.updateDeviceTable(device, self.newFlag)
+        self.selectionUpdate(TID_D)
         self.dialogs[TID_D].hide()
         # TODO -- disallow non-unique names and hwId of -1 (i.e. the "no devices" option)
 
     def saveConfig(self):
         configUi = self.dialogUis[TID_C]
-        device = self.systemState.getHardwareObject(TID_D, self.currXmlId)
+        device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_C])
         device.zone = configUi.dropdownZone.currentData()
         device.enter = configUi.dropdownEntryAction.currentData()
         device.exit = configUi.dropdownExitAction.currentData()
         self.updateConfigTableEntry(device)
+        self.selectionUpdate(TID_C)
         self.dialogs[TID_C].hide()
 
     def deleteTableEntry(self, typeId):
         # TODO -- handle (attempted) deletion of a zone used by device config(s)
-        self.systemState.deleteHardwareObject(typeId, self.currXmlId)
+        self.systemState.deleteHardwareObject(typeId, self.currXmlId[typeId])
         self.tables[typeId].removeRow(self.tables[typeId].currentRow())
 
     def clearConfig(self):
-        device = self.systemState.getHardwareObject(TID_D, self.currXmlId)
+        device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_C])
         device.zone = -1
         device.enter = 0
         device.exit = 0
@@ -209,7 +215,9 @@ class UiControl:
     def selectionUpdate(self, tableIdx):
         items = self.tables[tableIdx].selectedItems()
         if (len(items) > 0):
-            self.currXmlId = items[0].data(1)
+            self.currXmlId[tableIdx] = items[0].data(1)
+        else:
+            self.currXmlId[tableIdx] = -1
         shouldEnable = ( len(self.tables[tableIdx].selectedIndexes()) != 0)
         buttons = self.buttonGroups[tableIdx]
         for i in range(2): # only update edit & delete buttons
@@ -228,7 +236,7 @@ class UiControl:
 
         # add and select current hwId if editing existing wearable
         if (not self.newFlag):
-            wearable = self.systemState.getHardwareObject(TID_W, self.currXmlId)
+            wearable = self.systemState.getHardwareObject(TID_W, self.currXmlId[TID_W])
             dropdown.insertItem(0, str(wearable.hwId), int(wearable.hwId))
             dropdown.setCurrentIndex(0)
 
@@ -245,7 +253,7 @@ class UiControl:
 
         # add and select current hwId if editing existing zone
         if (not self.newFlag):
-            zone = self.systemState.getHardwareObject(TID_Z, self.currXmlId)
+            zone = self.systemState.getHardwareObject(TID_Z, self.currXmlId[TID_Z])
             dropdown.insertItem(0, str(zone.hwId), int(zone.hwId))
             dropdown.setCurrentIndex(0)
 
@@ -262,7 +270,7 @@ class UiControl:
 
         # add and select current hwId if editing existing zone
         if (not self.newFlag):
-            device = self.systemState.getHardwareObject(TID_D, self.currXmlId)
+            device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_D])
             dropdown.insertItem(0, str(device.hwId), int(device.hwId))
             dropdown.setCurrentIndex(0)
 

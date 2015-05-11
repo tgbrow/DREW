@@ -60,19 +60,6 @@
     <string>Select Wearable Unit:</string>
    </property>
   </widget>
-  <widget class="QPlainTextEdit" name="inputName">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>40</y>
-     <width>361</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="verticalScrollBarPolicy">
-    <enum>Qt::ScrollBarAlwaysOff</enum>
-   </property>
-  </widget>
   <widget class="QComboBox" name="dropdownWearable">
    <property name="geometry">
     <rect>
@@ -121,6 +108,19 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLineEdit" name="inputName">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>40</y>
+     <width>361</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="maxLength">
+    <number>40</number>
+   </property>
   </widget>
  </widget>
  <resources/>

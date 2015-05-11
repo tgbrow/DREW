@@ -2,8 +2,16 @@
 <configuration>
 	<devices>
 		<device dId="0">
-			<name>test_device</name>
-			<hwId>2323</hwId>
+			<name>Kitchen TV</name>
+			<hwId>222</hwId>
+			<devType>0</devType>
+			<enter>0</enter>
+			<exit>0</exit>
+			<zId>-1</zId>
+		</device>
+		<device dId="1">
+			<name>Bedroom Lamp</name>
+			<hwId>777</hwId>
 			<devType>0</devType>
 			<enter>2</enter>
 			<exit>1</exit>
@@ -12,15 +20,19 @@
 	</devices>
 	<wearables>
 		<wearable wId="0">
-			<name>test_wearable</name>
+			<name>Wes's Wearable</name>
 			<hwId>555</hwId>
+		</wearable>
+		<wearable wId="1">
+			<name>Teddy's Wearable</name>
+			<hwId>666</hwId>
 		</wearable>
 	</wearables>
 	<zones>
 		<zone zId="0">
-			<name>test_zone</name>
-			<hwId>5678</hwId>
-			<threshold>20</threshold>
+			<name>Bedroom</name>
+			<hwId>333</hwId>
+			<threshold>35</threshold>
 		</zone>
 	</zones>
 </configuration>
