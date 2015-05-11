@@ -4,6 +4,8 @@ from constants import *
 from PyQt5.QtWidgets import QWidget
 import sys
 import libbtaps
+import serial
+import threading
 
 class Zone():
   def __init__(self, name='default_zone', xmlId=None, hwId=None, threshold=None):
@@ -11,6 +13,7 @@ class Zone():
     self.xmlId = xmlId
     self.hwId = hwId
     self.threshold = threshold
+    self.wearablesInZone = LockedSet()
 
 class Device():
   def __init__(self, name='default_device', xmlId=None, hwId=None, devType=0, enter=2, exit=1, zone=-1):
@@ -129,6 +132,9 @@ class SystemState:
     for i in range(3):
       if (len(self.dicts[i].keys()) != 0):
         self.nextIds[i] = max(self.dicts[i].keys()) + 1
+    self.serialComm = serial.Serial('COM8', 9600) # Establish the connection on a specific port
+    self.wearableIds = LockedSet()
+    self.zoneIds = LockedSet()
 
   def getXmlId(self, typeId):
     xmlId = self.nextIds[typeId]
@@ -153,8 +159,16 @@ class SystemState:
     self.dicts[TID_D][xmlId] = device
     return device
 
+  # TODO -- rename this method
   def getHardwareObject(self, typeId, xmlId):
     return self.dicts[typeId][xmlId]
+
+  def getHardwareObjectByHwId(self, typeId, hwId):
+    for hwObject in self.dicts[typeId].values():
+      if (hwObject.hwId == hwId)
+        return hwObject
+    print("ERROR: hardward object with hwId ", hwId, " not found!")
+    return None
 
   def deleteHardwareObject(self, typeId, xmlId):
     del self.dicts[typeId][xmlId]
@@ -170,6 +184,11 @@ class SystemState:
           hwIdList.remove(hwItem.hwId)
     return hwIdList
 
+  def updateZoneOccupation(self, zone, wearableId, direction):
+    if (direction == DIR_ENTER):
+      zone.wearablesInZone.add( (wearableId, time.time()) )
+    else:
+      zone.wearablesInZone.discard(wearableId)
 
 #------Temporary stuff below
 
@@ -177,6 +196,32 @@ class SystemState:
     xmlId = self.getXmlId(TID_W)
     self.dicts[TID_W][xmlId] = Wearable(name, xmlId, hwId)
     
+
+class LockedSet:
+  self.lock = threading.Lock()
+  self.set = Set()
+
+  def add(self, item):
+    try:
+      self.lock.acquire()
+      self.set.add(item)
+    finally:
+      self.lock.release()
+
+  def discard(self, item):
+    try:
+      self.lock.acquire()
+      self.set.discard(item)
+    finally:
+      self.lock.release()
+
+  def clear(self):
+    try:
+      self.lock.acquire()
+      self.set.clear()
+    finally:
+      self.lock.release()
+
 
 # Class that controls bluetooth plugable devices
 # connect and disconnect functions don't necessarily need to be public
@@ -238,8 +283,27 @@ class BtControl():
     return state
 
 class SerialMessage():
-  def __init__(self, messageType, wearableId, zoneId, signalStrength):
-    self.messageType = messageType
-    self.wearableId = wearableId
-    self.zoneId = zoneId
-    self.signalStrength = signalStrength
+  def __init__(self, data):
+    data = data.replace('\r\n', '')
+    splitData = re.split('\,', data)
+    self.msgType = splitData[0]
+    if (self.msgType == MSG_TYPE_REG):          
+      self.wearableId = splitData[1]
+      self.zoneId = splitData[2]
+      self.signalStrength = int(splitData[3])
+      # print('Wearable ID=', self.wearableId)
+      # print('Zone ID=', self.zoneId)
+      # print('Signal Strength=', self.signalStrength)
+      # print()
+    elif (self.msgType == MSG_TYPE_DISC_W):
+      self.wearableId = splitData[1]
+      self.zoneId = None
+      self.signalStrength = None
+      # print('Found wearable with id=', self.wearableId)
+      # print()
+    else: # (self.msgType == MSG_TYPE_DISC_Z):
+      self.wearableId = None
+      self.zoneId = splitData[1]
+      self.signalStrength = None
+      # print('Found zone with id=', self.zoneId)
+      # print()

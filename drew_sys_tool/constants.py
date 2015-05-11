@@ -18,4 +18,13 @@ DEVICE_TYPES = {0: "Plugable Outlet Switch"}
 DEVICE_ACTIONS = {0: PLUGABLE_ACTIONS}
 DEVICE_STATES = {0: PLUGABLE_STATES}
 
-MESSAGE_TYPE = {1: "WearablePayload", 2: "ZonePayload", 4: "ZoneAck"}
+MSG_TYPE_DISC_W = '1' # wearable discovery message
+MSG_TYPE_DISC_Z = '4' # zone discovery message
+MSG_TYPE_REG    = '2' # "regular" message (wearable/zone signal strength)
+
+# directions
+DIR_EXIT = 0
+DIR_ENTER = 1
+
+# time (in seconds) before a wearable is "evicted" from a zone (when no signals are seen)
+EVICT_TIME = 5
