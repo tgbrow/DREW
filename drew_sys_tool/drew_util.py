@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from constants import *
+from PyQt5.QtWidgets import QWidget
 import sys
 import libbtaps
 
@@ -114,16 +115,16 @@ class XmlControl():
     # do the actual writing
     rough_string = ET.tostring(configuration, 'utf-8')
     reparsed = minidom.parseString(rough_string)
-    f = open(filename, 'w')
+    f = open(self.filename, 'w')
     f.write(reparsed.toprettyxml(indent='\t'))
     f.close()
 
 
 class SystemState:
   def __init__(self, filename):
-    xml = XmlControl(filename)
-    xml.load()
-    self.dicts = [xml.wearables, xml.zones, xml.devices]
+    self.xml = XmlControl(filename)
+    self.xml.load()
+    self.dicts = [self.xml.wearables, self.xml.zones, self.xml.devices]
     self.nextIds = [0, 0, 0]
     for i in range(3):
       if (len(self.dicts[i].keys()) != 0):
@@ -175,6 +176,7 @@ class SystemState:
   def debugAddWearable(self, name, hwId):
     xmlId = self.getXmlId(TID_W)
     self.dicts[TID_W][xmlId] = Wearable(name, xmlId, hwId)
+    
 
 # Class that controls bluetooth plugable devices
 # connect and disconnect functions don't necessarily need to be public

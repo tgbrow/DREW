@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<configuration>
+	<devices>
+		<device dId="0">
+			<name>test_device</name>
+			<hwId>2323</hwId>
+			<devType>0</devType>
+			<enter>2</enter>
+			<exit>1</exit>
+			<zId>0</zId>
+		</device>
+	</devices>
+	<wearables>
+		<wearable wId="0">
+			<name>test_wearable</name>
+			<hwId>555</hwId>
+		</wearable>
+	</wearables>
+	<zones>
+		<zone zId="0">
+			<name>test_zone</name>
+			<hwId>5678</hwId>
+			<threshold>20</threshold>
+		</zone>
+	</zones>
+</configuration>

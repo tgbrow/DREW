@@ -5,11 +5,12 @@ from drew_util import SystemState
 
 # create system state
 systemState = SystemState("config_test.xml")
-systemState.debugAddWearable("Test Wearable", 666)
+
+# spawn other threads here
 
 # set up GUI application
 app = QApplication(sys.argv)
-
 uiControl = UiControl(systemState)
+app.exec_() # blocks until application is closed
 
-sys.exit(app.exec_())
+systemState.xml.save()
