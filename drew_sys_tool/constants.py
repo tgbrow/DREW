@@ -26,5 +26,14 @@ MSG_TYPE_REG    = '2' # "regular" message (wearable/zone signal strength)
 DIR_EXIT = 0
 DIR_ENTER = 1
 
-# time (in seconds) before a wearable is "evicted" from a zone (when no signals are seen)
-EVICT_TIME = 5
+# time before a wearable is "evicted" from a zone (when no signals are seen)
+EVICT_TIME = 5 # seconds
+
+# when system is paused (i.e. being configured), this is how long each thread will sleep
+# before checking again if the system is still paused
+PAUSE_SLEEP_TIME = 2 # seconds
+
+# IDs for threads
+THREAD_BT = 0 # bluetooth commander
+THREAD_ZE = 1 # zone evictor
+THREAD_SR = 2 # serial reader

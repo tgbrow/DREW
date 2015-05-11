@@ -23,7 +23,7 @@ class Device():
     self.devType = devType
     self.enter = enter
     self.exit = exit
-    self.zone = zone
+    self.zone = zone # note: this is the associated zone's XML ID
 
 class Wearable():
   def __init__(self, name='default_wearable', xmlId=None, hwId=None):
@@ -135,6 +135,9 @@ class SystemState:
     self.serialComm = serial.Serial('COM8', 9600) # Establish the connection on a specific port
     self.wearableIds = LockedSet()
     self.zoneIds = LockedSet()
+    self.stop = False
+    self.pause = True
+    self.threadsPaused = [False, False, False]
 
   def getXmlId(self, typeId):
     xmlId = self.nextIds[typeId]
