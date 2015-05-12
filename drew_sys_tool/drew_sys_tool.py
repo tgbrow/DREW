@@ -38,4 +38,15 @@ uiControl = UiControl(systemState)
 app.exec_() # blocks until application is closed
 
 systemState.stop = True
+
+print("stopping system...") # debug
+
+btThread.join()
+evictThread.join()
+serialThread.join()
+
+print("system stopped") # debug
+
 systemState.xml.save()
+
+print("GOODBYE! :)")

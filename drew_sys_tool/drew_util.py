@@ -203,9 +203,9 @@ class SystemState:
   def setSystemPause(self, pauseFlag):
     # debug begin
     if (pauseFlag):
-      print("pausing system")
+      print("pausing system...")
     else:
-      print("resuming system")
+      print("resuming system...")
     #debug end
 
     self.pause = pauseFlag
@@ -218,6 +218,7 @@ class SystemState:
     else:
       print("resume done")
     # debug end
+    
 
 class LockedSet:
   def __init__(self):
