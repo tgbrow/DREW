@@ -1,6 +1,7 @@
 from drew_util import SerialMessage
 from constants import *
-from time import sleep
+import time
+# from time import sleep
 # import serial
 # import re
 
@@ -10,12 +11,20 @@ class SerialReader():
 		self.serialComm = systemState.serialComm
 
 	def run(self):
-		while(not self.systemState.stop):
-			self.systemState.threadsPaused[THREAD_SR] = systemState.pause
+		if self.serialComm == None:
+			print('exiting run because serialComm is none')
+			return
 
-			if (self.serialComm.inWaiting() > 0):
+		while(not self.systemState.stop):
+			print('system not stopped')
+			if (self.systemState.pause):
+				self.systemState.threadsPaused[THREAD_SR] = True
+				time.sleep(PAUSE_SLEEP_TIME)
+			else:
+				print('inside else!')
 				msg = SerialMessage(self.serialComm.readline().decode())
-				if (msg.msgType == MSG_TYPE_REG and not self.systemState.pause):
+				print('msg: ', msg)
+				if (msg.msgType == MSG_TYPE_REG):
 					zone = self.systemState.getHardwareObjectByHwId(TID_Z, msg.zoneId)
 					wasInZone = self.systemState.zoneOccupation.lookup(msg.zoneId, msg.wearableId)
 					nowInZone = (msg.signalStrength - zone.threshold > 0)
@@ -24,9 +33,9 @@ class SerialReader():
 						print("zone occupation change")
 						# TODO -- update zoneOccupation table
 						# TODO -- hand action info to bluetooth thread
+						actionMsg = (zone, DIR_ENTER if nowInZone else DIR_EXIT)
+						self.systemState.actionQ.put(actionMsg, True)
 				elif (msg.msgType == MSG_TYPE_DISC_W):
 					self.systemState.wearableIds.add(msg.wearableId)
 				else: # (msg.msgType == MSG_TYPE_DISC_Z)
 					self.systemState.zoneIds.add(msg.zoneId)
-			else: # sleep a little bit if there's nothing to do
-				time.sleep(0.5)

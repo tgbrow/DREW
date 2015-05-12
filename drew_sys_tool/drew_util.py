@@ -5,6 +5,7 @@ import sys
 import libbtaps
 import serial
 import threading
+from queue import Queue
 
 class Zone():
   def __init__(self, name='default_zone', xmlId=None, hwId=None, threshold=None):
@@ -131,12 +132,17 @@ class SystemState:
     for i in range(3):
       if (len(self.dicts[i].keys()) != 0):
         self.nextIds[i] = max(self.dicts[i].keys()) + 1
-    self.serialComm = serial.Serial('COM8', 9600) # Establish the connection on a specific port
+    try:
+      self.serialComm = serial.Serial('COM12', 9600) # Establish the connection on a specific port
+    except:
+      self.serialComm = None
+      print('ERROR: could not connect to serial')
     self.wearableIds = LockedSet()
     self.zoneIds = LockedSet()
     self.stop = False
     self.pause = True
     self.threadsPaused = [False, False, False]
+    self.actionQ = Queue(ACTION_QUEUE_MAX)
 
   def getXmlId(self, typeId):
     xmlId = self.nextIds[typeId]
@@ -216,7 +222,7 @@ class SystemState:
 class LockedSet:
   def __init__(self):
     self.lock = threading.Lock()
-    self.set = Set()
+    self.set = set()
 
   def add(self, item):
     try:
@@ -252,12 +258,12 @@ class BtController():
 
   def connect(self):
     # connect to a the given bluetooth device
-    self.btaps = libbtaps.BTaps(self.hwId)
-    self.connected = self.btaps.connect()
-    # if self.connected:
-    #   print('Successfully connected to Bluetooth Device, hwId: ', hwId)
-    # else:
-    #   print('Failed to connect to the given Bluetooth Device, hwId: ', hwId)
+    try:
+      self.btaps = libbtaps.BTaps(self.hwId)
+      self.connected = self.btaps.connect()
+    except:
+      print('ERROR: failed to connect to bt device')
+      self.connected = False
 
   def disconnect(self):
     #disconnect from the current device

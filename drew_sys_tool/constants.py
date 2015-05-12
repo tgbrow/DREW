@@ -44,3 +44,5 @@ SER_DISC_Z_CMD = '1'
 # system pause / resume boolean flags
 PAUSE = True
 RESUME = False
+
+ACTION_QUEUE_MAX = 25

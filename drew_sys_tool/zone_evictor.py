@@ -17,4 +17,5 @@ class ZoneEvictor():
 						if (currTime - timeAdded > EVICT_TIME): 
 							zone.wearablesInZone.discard(wearableId)
 							# TODO -- hand action info to bluetooth thread
+							self.systemState.actionQ.put( (zone, DIR_EXIT) )
 				time.sleep(2.5)

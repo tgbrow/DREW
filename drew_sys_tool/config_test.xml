@@ -3,15 +3,7 @@
 	<devices>
 		<device dId="0">
 			<name>Kitchen TV</name>
-			<hwId>222</hwId>
-			<devType>0</devType>
-			<enter>0</enter>
-			<exit>0</exit>
-			<zId>-1</zId>
-		</device>
-		<device dId="1">
-			<name>Bedroom Lamp</name>
-			<hwId>777</hwId>
+			<hwId>8C:DE:52:21:2F:2A2</hwId>
 			<devType>0</devType>
 			<enter>2</enter>
 			<exit>1</exit>
