@@ -1,7 +1,6 @@
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from constants import *
-from PyQt5.QtWidgets import QWidget
 import sys
 import libbtaps
 import serial
@@ -179,8 +178,10 @@ class SystemState:
       self.nextIds[typeId] = xmlId
 
   def discoverHardware(self, typeId):
-    # TODO -- get a legit list of hwIds
-    hwIdList = [111, 222, 333, 444, 555, 666, 777]
+    self.serialComm.write(SER_DISC_Z_CMD.encode()) # initiate zone discovery
+    time.sleep(2.5) # wait for zones to send back messages + processing
+
+    hwIdList = list(self.zoneIds) # *copy* the zone ID list
 
     for hwItem in self.dicts[typeId].values():
         if hwItem.hwId in hwIdList:
@@ -193,12 +194,24 @@ class SystemState:
     else:
       zone.wearablesInZone.discard(wearableId)
 
-#------Temporary stuff below
+  def setSystemPause(self, pauseFlag):
+    # debug begin
+    if (pauseFlag):
+      print("pausing system")
+    else:
+      print("resuming system")
+    #debug end
 
-  def debugAddWearable(self, name, hwId):
-    xmlId = self.getXmlId(TID_W)
-    self.dicts[TID_W][xmlId] = Wearable(name, xmlId, hwId)
+    self.pause = pauseFlag
+    while((not pauseFlag) in self.threadsPaused):
+      time.sleep(0.25) # don't return until all threads have seen the pause command
     
+    # debug begin
+    if (pauseFlag):
+      print("pause done")
+    else:
+      print("resume done")
+    # debug end
 
 class LockedSet:
   def __init__(self):

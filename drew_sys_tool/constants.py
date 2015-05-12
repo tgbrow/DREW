@@ -37,3 +37,10 @@ PAUSE_SLEEP_TIME = 2 # seconds
 THREAD_BT = 0 # bluetooth commander
 THREAD_ZE = 1 # zone evictor
 THREAD_SR = 2 # serial reader
+
+# command to send over serial to initiate zone module discovery
+SER_DISC_Z_CMD = '1'
+
+# system pause / resume boolean flags
+PAUSE = True
+RESUME = False

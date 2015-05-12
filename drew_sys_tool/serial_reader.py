@@ -11,12 +11,11 @@ class SerialReader():
 
 	def run(self):
 		while(not self.systemState.stop):
-			if (self.systemState.pause):
-				self.systemState.threadsPaused[THREAD_SR] = True
-				time.sleep(PAUSE_SLEEP_TIME)
-			else:
+			self.systemState.threadsPaused[THREAD_SR] = systemState.pause
+
+			if (self.serialComm.inWaiting() > 0):
 				msg = SerialMessage(self.serialComm.readline().decode())
-				if (msg.msgType == MSG_TYPE_REG):
+				if (msg.msgType == MSG_TYPE_REG and not self.systemState.pause):
 					zone = self.systemState.getHardwareObjectByHwId(TID_Z, msg.zoneId)
 					wasInZone = self.systemState.zoneOccupation.lookup(msg.zoneId, msg.wearableId)
 					nowInZone = (msg.signalStrength - zone.threshold > 0)
@@ -29,3 +28,5 @@ class SerialReader():
 					self.systemState.wearableIds.add(msg.wearableId)
 				else: # (msg.msgType == MSG_TYPE_DISC_Z)
 					self.systemState.zoneIds.add(msg.zoneId)
+			else: # sleep a little bit if there's nothing to do
+				time.sleep(0.5)

@@ -13,3 +13,6 @@ Make sure you use the exact 32-bit installers given here!
 [04] PyBluez 0.21 for Python 3.4 (32-bit)
      https://pypi.python.org/packages/3.4/P/PyBluez/PyBluez-0.21.win32-py3.4.exe#md5=278803cf80665be14c4a7ed2bf3c9cd3
      Note: not needed now, but will be needed later when porting btaps library
+
+[05] pySerial 2.7 for Python 3.4 (32-bit)
+     https://pypi.python.org/packages/any/p/pyserial/pyserial-2.7.win32_py3k.exe#md5=c6fb580ae7763671297794b8a1d91c9e

@@ -78,7 +78,7 @@ class UiControl:
         self.dialogUis[TID_W].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_W))
         self.dialogUis[TID_Z].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_Z))
         self.dialogUis[TID_D].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_D))
-        self.dialogUis[TID_C].buttonCancel.clicked.connect(lambda: self.dialogs[TID_C].hide())
+        self.dialogUis[TID_C].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_C))
 
         # dialog "Save" buttons
         self.dialogUis[TID_W].buttonSave.clicked.connect(lambda: self.saveWearable())
@@ -116,6 +116,7 @@ class UiControl:
             self.createConfigTable()
 
     def editWearable(self, isNew):
+        self.setSystemPause(PAUSE)
         self.newFlag = isNew
         if (isNew):
             wearable = self.systemState.newWearable()
@@ -127,6 +128,7 @@ class UiControl:
         self.dialogs[TID_W].show()
 
     def editZone(self, isNew):
+        self.setSystemPause(PAUSE)
         self.newFlag = isNew
         if (isNew):
             zone = self.systemState.newZone()
@@ -139,6 +141,7 @@ class UiControl:
         self.dialogs[TID_Z].show()
 
     def editDevice(self, isNew):
+        self.setSystemPause(PAUSE)
         self.newFlag = isNew
         if (isNew):
             device = self.systemState.newDevice()
@@ -150,15 +153,19 @@ class UiControl:
         self.dialogs[TID_D].show()
 
     def editConfig(self):
+        self.setSystemPause(PAUSE)
         device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_C])
         self.dialogUis[TID_C].labelConfig.setText("Configuration for \"" + device.name + "\"")
         self.populateConfigDropdowns(device)
         self.dialogs[TID_C].show()
 
     def cancelHardwareDialog(self, typeId):
-        if (self.newFlag):
-            self.systemState.deleteHardwareObject(typeId, self.currXmlId[typeId])
-        self.selectionUpdate(typeId)
+        if (typeId != TID_C):
+            if (self.newFlag):
+                self.systemState.deleteHardwareObject(typeId, self.currXmlId[typeId])
+            self.selectionUpdate(typeId)
+
+        self.setSystemPause(RESUME)
         self.dialogs[typeId].hide()
 
     def saveWearable(self):
@@ -167,6 +174,7 @@ class UiControl:
         wearable.hwId = self.dialogUis[TID_W].dropdownWearable.currentData()
         self.updateWearableTable(wearable, self.newFlag)
         self.selectionUpdate(TID_W)
+        self.setSystemPause(RESUME)
         self.dialogs[TID_W].hide()
         # TODO -- disallow non-unique names and hwId of -1 (i.e. the "no wearables" option)
 
@@ -177,6 +185,7 @@ class UiControl:
         zone.threshold = self.dialogUis[TID_Z].spinnerThreshold.value()
         self.updateZoneTable(zone, self.newFlag)
         self.selectionUpdate(TID_Z)
+        self.setSystemPause(RESUME)
         self.dialogs[TID_Z].hide()
         # TODO -- disallow non-unique names and hwId of -1 (i.e. the "no modules" option)
 
@@ -187,6 +196,7 @@ class UiControl:
         device.devType = self.dialogUis[TID_D].dropdownType.currentData()
         self.updateDeviceTable(device, self.newFlag)
         self.selectionUpdate(TID_D)
+        self.setSystemPause(RESUME)
         self.dialogs[TID_D].hide()
         # TODO -- disallow non-unique names and hwId of -1 (i.e. the "no devices" option)
 
@@ -198,19 +208,24 @@ class UiControl:
         device.exit = configUi.dropdownExitAction.currentData()
         self.updateConfigTableEntry(device)
         self.selectionUpdate(TID_C)
+        self.setSystemPause(RESUME)
         self.dialogs[TID_C].hide()
 
     def deleteTableEntry(self, typeId):
         # TODO -- handle (attempted) deletion of a zone used by device config(s)
+        self.setSystemPause(PAUSE)
         self.systemState.deleteHardwareObject(typeId, self.currXmlId[typeId])
         self.tables[typeId].removeRow(self.tables[typeId].currentRow())
+        self.setSystemPause(RESUME)
 
     def clearConfig(self):
+        self.setSystemPause(PAUSE)
         device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_C])
         device.zone = -1
         device.enter = 0
         device.exit = 0
         self.updateConfigTableEntry(device)
+        self.setSystemPause(RESUME)
 
     def selectionUpdate(self, tableIdx):
         items = self.tables[tableIdx].selectedItems()
