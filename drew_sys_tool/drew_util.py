@@ -6,6 +6,8 @@ import libbtaps
 import serial
 import threading
 from queue import Queue
+import re
+import time
 
 class Zone():
   def __init__(self, name='default_zone', xmlId=None, hwId=None, threshold=None):
@@ -175,7 +177,7 @@ class SystemState:
     for hwObject in self.dicts[typeId].values():
       if (hwObject.hwId == hwId):
         return hwObject
-    print("ERROR: hardward object with hwId ", hwId, " not found!")
+    # print("ERROR: hardward object with hwId ", hwId, " not found!")
     return None
 
   def deleteHardwareObject(self, typeId, xmlId):
@@ -184,10 +186,15 @@ class SystemState:
       self.nextIds[typeId] = xmlId
 
   def discoverHardware(self, typeId):
-    self.serialComm.write(SER_DISC_Z_CMD.encode()) # initiate zone discovery
-    time.sleep(2.5) # wait for zones to send back messages + processing
-
-    hwIdList = list(self.zoneIds) # *copy* the zone ID list
+    if (typeId == TID_Z):
+      self.serialComm.write(SER_DISC_Z_CMD.encode()) # initiate zone discovery
+      time.sleep(2.5) # wait for zones to send back messages + processing
+      hwIdList = self.zoneIds.getCopyAsList() # *copy* the zone ID list
+    elif (typeId == TID_W):
+      hwIdList = self.wearableIds.getCopyAsList() # *copy* the wearable ID list
+    else:
+      print("ERROR: hardware discovery only valid for wearables and zones!")
+      hwIdList = ["FUCKYOU"]
 
     for hwItem in self.dicts[typeId].values():
         if hwItem.hwId in hwIdList:
@@ -245,6 +252,22 @@ class LockedSet:
       self.set.clear()
     finally:
       self.lock.release()
+
+  def contains(self, item):
+    try:
+      self.lock.acquire()
+      isPresent = item in self.set
+    finally:
+      self.lock.release()
+    return isPresent
+
+  def getCopyAsList(self):
+    try:
+      self.lock.acquire()
+      listCopy = list(self.set)
+    finally:
+      self.lock.release()
+    return listCopy
 
 
 # Class that controls bluetooth plugable devices

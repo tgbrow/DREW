@@ -1,4 +1,4 @@
-from time import sleep
+import time
 import serial
 import re
 #ser = serial.Serial('/dev/tty.usbmodem1d11', 9600) # Establish the connection on a specific port

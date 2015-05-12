@@ -5,16 +5,23 @@ class BluetoothCommander:
 	def __init__(self, systemState):
 		self.systemState = systemState
 		self.controllers = {}
+		# for device in self.systemState.dicts[TID_D].values():
+		# 	self.controllers[device.hwId] = BtController(device.hwId)
+
+	def connect(self):
 		for device in self.systemState.dicts[TID_D].values():
 			self.controllers[device.hwId] = BtController(device.hwId)
 
 	def run(self):
+		self.connect()
 		while not self.systemState.stop:
 			if self.systemState.pause:
 				self.systemState.threadsPaused[THREAD_BT] = True
 				time.sleep(PAUSE_SLEEP_TIME)
 			else:
+				self.systemState.threadsPaused[THREAD_BT] = False
 				if not self.systemState.actionQ.empty():
+					print('actionQ not empty')
 					try:
 						workItem = self.systemState.actionQ.get(True) # lock until queue returns an item
 						zone = workItem[0]

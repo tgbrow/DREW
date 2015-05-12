@@ -11,9 +11,10 @@ class ZoneEvictor():
 				self.systemState.threadsPaused[THREAD_ZE] = True
 				time.sleep(PAUSE_SLEEP_TIME)
 			else:
+				self.systemState.threadsPaused[THREAD_ZE] = False
 				currTime = time.time()
-				for zone in self.systemState.zones.values():
-					for wearableId, timeAdded in zone.wearablesInZone:
+				for zone in self.systemState.dicts[TID_Z].values():
+					for wearableId, timeAdded in zone.wearablesInZone.getCopyAsList():
 						if (currTime - timeAdded > EVICT_TIME): 
 							zone.wearablesInZone.discard(wearableId)
 							# TODO -- hand action info to bluetooth thread
