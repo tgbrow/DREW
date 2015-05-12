@@ -226,21 +226,21 @@ class LockedSet:
 # Class that controls bluetooth plugable devices
 # connect and disconnect functions don't necessarily need to be public
 class BtControl():
-  def __init__(self):
-    self.currentDevice = None
-    self.busy = False
+  def __init__(self, hwId):
+    self.hwId = hwId
     self.connected = False
     self.btaps = None
 
-  def connect(self, hwId):
+    self.connect() # connect to the device
+
+  def connect(self):
     # connect to a the given bluetooth device
-    self.currentDevice = hwId
-    self.btaps = libbtaps.BTaps(hwId)
+    self.btaps = libbtaps.BTaps(self.hwId)
     self.connected = self.btaps.connect()
-    if self.connected:
-      print('Successfully connected to Bluetooth Device, hwId: ', hwId)
-    else:
-      print('Failed to connect to the given Bluetooth Device, hwId: ', hwId)
+    # if self.connected:
+    #   print('Successfully connected to Bluetooth Device, hwId: ', hwId)
+    # else:
+    #   print('Failed to connect to the given Bluetooth Device, hwId: ', hwId)
 
   def disconnect(self):
     #disconnect from the current device
@@ -248,30 +248,21 @@ class BtControl():
       self.btaps.disconnect()
       self.connected = False
       self.btaps = None
-      print('Disconnected from Bluetooth Device, hwId: ', self.currentDevice)
+      # print('Disconnected from Bluetooth Device, hwId: ', self.hwId)
 
 
-  def setDeviceState(self, hwId, action):
+  def setState(self, action):
     if action == 0 or not self.connected:
       #ignore the device or not connected
       return
     else:
-      # self.connect(hwId)
       if action == 1:
-        #turn device off
-        #print('Turning off Bluetooth Device, hwId: ', hwId)
-        self.btaps.set_switch(False)
+        self.btaps.set_switch(False) #turn device off
       elif action == 2:
-        #turn device on
-        #print('Turning on Bluetooth Device, hwId: ', hwId)
-        self.btaps.set_switch(True)
-      #else:
-      #  #unknown action, do nothing
-      #  print('Unknown action for Bluetooth Device, hwId: ', hwId)
-      # self.disconnect()
+        self.btaps.set_switch(True) #turn device on
+      #else: unknown action, do nothing
 
-  def getDeviceState(self, hwId):
-    # self.connect(hwId)
+  def getState(self):
     if not self.connected:
       return
     state = -1
@@ -279,7 +270,6 @@ class BtControl():
       state = 2
     else:
       state = 1
-    # self.disconnect()
     return state
 
 class SerialMessage():
