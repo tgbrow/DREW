@@ -168,7 +168,7 @@ class SystemState:
 
   def getHardwareObjectByHwId(self, typeId, hwId):
     for hwObject in self.dicts[typeId].values():
-      if (hwObject.hwId == hwId)
+      if (hwObject.hwId == hwId):
         return hwObject
     print("ERROR: hardward object with hwId ", hwId, " not found!")
     return None
@@ -228,7 +228,7 @@ class LockedSet:
 
 # Class that controls bluetooth plugable devices
 # connect and disconnect functions don't necessarily need to be public
-class BtControl():
+class BtController():
   def __init__(self, hwId):
     self.hwId = hwId
     self.connected = False
