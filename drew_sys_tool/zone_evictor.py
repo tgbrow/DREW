@@ -5,7 +5,7 @@ class ZoneEvictor():
 	def __init__(self, systemState):
 		self.systemState = systemState
 
-	def run:
+	def run(self):
 		while (not self.systemState.stop):
 			if (self.systemState.pause):
 				self.systemState.threadsPaused[THREAD_ZE] = True

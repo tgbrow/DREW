@@ -1,5 +1,4 @@
 from drew_util import *
-from queue import Queue
 import time
 
 class BluetoothCommander:
@@ -7,7 +6,7 @@ class BluetoothCommander:
 		self.systemState = systemState
 		self.controllers = {}
 		for device in self.systemState.dicts[TID_D].values():
-			self.controllers[device.hwId] = BtController`(device.hwId)
+			self.controllers[device.hwId] = BtController(device.hwId)
 
 	def run(self):
 		while not self.systemState.stop:

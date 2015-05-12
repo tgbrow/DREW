@@ -201,8 +201,9 @@ class SystemState:
     
 
 class LockedSet:
-  self.lock = threading.Lock()
-  self.set = Set()
+  def __init__(self):
+    self.lock = threading.Lock()
+    self.set = Set()
 
   def add(self, item):
     try:
