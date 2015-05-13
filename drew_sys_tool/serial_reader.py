@@ -23,15 +23,20 @@ class SerialReader():
 					zone = self.systemState.getHardwareObjectByHwId(TID_Z, msg.zoneId)
 					if (zone == None):
 						continue
-					wasInZone = zone.wearableInZone.contains(msg.wearableId)
+					wasInZone = zone.wearablesInZone.contains(msg.wearableId, True)
 					nowInZone = (msg.signalStrength - zone.threshold > 0)
+					print('msg: ', msg.msgType, ', ', msg.wearableId, ', ', msg.zoneId, ', ', msg.signalStrength, 'now: ', nowInZone, 'was: ', wasInZone)
 					if (nowInZone != wasInZone):
 						# debug print
 						print("zone occupation change")
-						# TODO -- update zoneOccupation table
-						# TODO -- hand action info to bluetooth thread
+
+						self.systemState.updateZoneOccupation(zone, msg.wearableId, nowInZone)
+
 						actionMsg = (zone, DIR_ENTER if nowInZone else DIR_EXIT)
-						self.systemState.actionQ.put(actionMsg, True)
+						self.systemState.actionQ.put(actionMsg, True, None)
+						
+					elif (nowInZone): # wearable already in zone -- update its time value
+						zone.wearablesInZone.updateTuple(msg.wearableId)
 				elif (msg.msgType == MSG_TYPE_DISC_W):
 					self.systemState.wearableIds.add(msg.wearableId)
 				elif (msg.msgType == MSG_TYPE_DISC_Z):

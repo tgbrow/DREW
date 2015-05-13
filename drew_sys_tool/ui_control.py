@@ -53,6 +53,8 @@ class UiControl:
         for i in range(4):
             self.selectionUpdate(i)
 
+        self.systemState.setSystemPause(RESUME)
+
         # let's go!
         self.mainWindow.show()
 

@@ -201,11 +201,11 @@ class SystemState:
           hwIdList.remove(hwItem.hwId)
     return hwIdList
 
-  def updateZoneOccupation(self, zone, wearableId, direction):
-    if (direction == DIR_ENTER):
+  def updateZoneOccupation(self, zone, wearableId, nowInZone):
+    if (nowInZone):
       zone.wearablesInZone.add( (wearableId, time.time()) )
     else:
-      zone.wearablesInZone.discard(wearableId)
+      zone.wearablesInZone.discard(wearableId, True)
 
   def setSystemPause(self, pauseFlag):
     # debug begin
@@ -239,10 +239,16 @@ class LockedSet:
     finally:
       self.lock.release()
 
-  def discard(self, item):
+  def discard(self, item, isTupleSet=False):
     try:
       self.lock.acquire()
-      self.set.discard(item)
+      if (isTupleSet):
+        for theTuple in self.set:
+          if theTuple[0] == item:
+            self.set.discard(theTuple)
+            break
+      else:
+        self.set.discard(item)
     finally:
       self.lock.release()
 
@@ -253,10 +259,16 @@ class LockedSet:
     finally:
       self.lock.release()
 
-  def contains(self, item):
+  def contains(self, item, isTupleSet=False):
+    isPresent = False
     try:
       self.lock.acquire()
-      isPresent = item in self.set
+      if (isTupleSet):
+        for theTuple in self.set:
+          if theTuple[0] == item:
+            isPresent = True
+      else:
+        isPresent = item in self.set
     finally:
       self.lock.release()
     return isPresent
@@ -264,10 +276,23 @@ class LockedSet:
   def getCopyAsList(self):
     try:
       self.lock.acquire()
-      listCopy = list(self.set)
+      listCopy = [] if (len(self.set) == 0) else list(self.set)
     finally:
       self.lock.release()
     return listCopy
+
+  def updateTuple(self, item):
+    print("updating...")
+    try:
+      self.lock.acquire()
+      for theTuple in self.set:
+          if theTuple[0] == item:
+            self.set.discard(theTuple)
+            break
+      self.set.add((item, time.time()))
+    finally:
+      self.lock.release()
+    print("updating done")
 
 
 # Class that controls bluetooth plugable devices
@@ -288,6 +313,7 @@ class BtController():
     except:
       print('ERROR: failed to connect to bt device')
       self.connected = False
+    print('BtController connected: ', self.connected)
 
   def disconnect(self):
     #disconnect from the current device
@@ -299,15 +325,16 @@ class BtController():
 
 
   def setState(self, action):
-    if action == 0 or not self.connected:
+    if action == 0:
       #ignore the device or not connected
       return
+    elif not self.connected:
+      print('not connected')
     else:
       if action == 1:
         self.btaps.set_switch(False) #turn device off
       elif action == 2:
         self.btaps.set_switch(True) #turn device on
-      #else: unknown action, do nothing
 
   def getState(self):
     if not self.connected:

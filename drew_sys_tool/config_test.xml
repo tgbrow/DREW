@@ -3,7 +3,7 @@
 	<devices>
 		<device dId="0">
 			<name>Kitchen TV</name>
-			<hwId>8C:DE:52:21:2F:2A2</hwId>
+			<hwId>8C:DE:52:21:2F:2A</hwId>
 			<devType>0</devType>
 			<enter>2</enter>
 			<exit>1</exit>
@@ -19,12 +19,16 @@
 			<name>Teddy's Wearable</name>
 			<hwId>666</hwId>
 		</wearable>
+		<wearable wId="2">
+			<name>Real Wearable</name>
+			<hwId>7</hwId>
+		</wearable>
 	</wearables>
 	<zones>
 		<zone zId="0">
-			<name>Bedroom</name>
-			<hwId>333</hwId>
-			<threshold>35</threshold>
+			<name>Kitchen</name>
+			<hwId>3</hwId>
+			<threshold>55</threshold>
 		</zone>
 	</zones>
 </configuration>
