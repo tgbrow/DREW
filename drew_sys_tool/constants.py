@@ -45,4 +45,8 @@ SER_DISC_Z_CMD = '1'
 PAUSE = True
 RESUME = False
 
-ACTION_QUEUE_MAX = 25
+# maximum size of the queue to pass actions to the bluetooth commander
+ACTION_QUEUE_MAX = 25 
+
+#maximum number of samples to average
+MAX_SAMPLES = 5

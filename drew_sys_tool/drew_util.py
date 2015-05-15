@@ -15,7 +15,7 @@ class Zone():
     self.xmlId = xmlId
     self.hwId = hwId
     self.threshold = threshold
-    self.wearablesInZone = LockedSet()
+    self.wearablesInZone = LockedDict()
 
 class Device():
   def __init__(self, name='default_device', xmlId=None, hwId=None, devType=0, enter=2, exit=1, zone=-1):
@@ -135,8 +135,8 @@ class SystemState:
       if (len(self.dicts[i].keys()) != 0):
         self.nextIds[i] = max(self.dicts[i].keys()) + 1
     
-    serialComm = None
-    while (serialComm == None):
+    self.serialComm = None
+    while (self.serialComm == None):
       try:
         self.serialComm = serial.Serial('COM12', 9600) # Establish the connection on a specific port
       except:
@@ -231,6 +231,56 @@ class SystemState:
       print("resume done")
     # debug end
     
+class LockedDict:
+  def __init__(self):
+    self.lock = threading.Lock()
+    self.dict = {}
+
+  def add(self, key, value):
+    try:
+      self.lock.acquire()
+      self.dict[key] = value
+    finally:
+      self.lock.release()
+
+  def discard(self, key):
+    try:
+      self.lock.acquire()
+      self.dict.discard(key)
+    finally:
+      self.lock.release()
+
+  def keys(self):
+    try:
+      self.lock.acquire()
+      keyList = self.dict.keys()
+    finally:
+      self.lock.release()
+      return keyList
+
+  def values(self):
+    try:
+      self.lock.acquire()
+      valueList = self.dict.values()
+    finally:
+      self.lock.release()
+      return valueList
+
+  def items(self):
+    try:
+      self.lock.acquire()
+      itemsList = self.dict.items()
+    finally:
+      self.lock.release()
+      return itemsList
+
+  def get(self, key):
+    try:
+      self.lock.acquire()
+      value = self.dict.get(key)
+    finally:
+      self.lock.release()
+      return value
 
 class LockedSet:
   def __init__(self):
@@ -360,19 +410,24 @@ class SerialMessage():
       self.wearableId = splitData[1]
       self.zoneId = splitData[2]
       self.signalStrength = int(splitData[3])
-      # print('Wearable ID=', self.wearableId)
-      # print('Zone ID=', self.zoneId)
-      # print('Signal Strength=', self.signalStrength)
-      # print()
     elif (self.msgType == MSG_TYPE_DISC_W):
       self.wearableId = splitData[1]
       self.zoneId = None
       self.signalStrength = None
-      # print('Found wearable with id=', self.wearableId)
-      # print()
     else: # (self.msgType == MSG_TYPE_DISC_Z):
       self.wearableId = None
       self.zoneId = splitData[1]
       self.signalStrength = None
-      # print('Found zone with id=', self.zoneId)
-      # print()
+
+
+class SignalData():
+  def __init__(self, signalStrength, lastUpdate=None, sampleCount=1):
+    self.avgStrength = signalStrength
+    self.lastUpdate = time.time() if lastUpdate == None else lastUpdate
+    self.sampleCount = sampleCount
+
+  def addSample(self, signalStrength):
+    if (self.sampleCount < MAX_SAMPLES):
+      self.sampleCount += 1
+    self.avgStrength += (signalStrength - self.avgStrength) / self.sampleCount
+    self.lastUpdate = time.time()
