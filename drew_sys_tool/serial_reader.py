@@ -1,4 +1,4 @@
-from drew_util import SerialMessage
+from drew_util import SerialMessage, SignalData
 from constants import *
 import time
 # import serial
@@ -13,30 +13,39 @@ class SerialReader():
 		while(not self.systemState.stop):
 			self.systemState.threadsPaused[THREAD_SR] = self.systemState.pause
 
-			if (self.serialComm.inWaiting() > 0):
+			if (self.serialComm.inWaiting() > 0): # if a message is available
 				msg = SerialMessage(self.serialComm.readline().decode())
-				# print('msg: ', msg.msgType, ', ', msg.wearableId, ', ', msg.zoneId, ', ', msg.signalStrength)
+
 				if (msg.msgType == MSG_TYPE_REG):
+					print('msg: ', msg.msgType, ', ', msg.wearableId, ', ', msg.zoneId, ', ', msg.signalStrength)
+
 					if (self.systemState.pause):
 						# if the system is paused, we throw out any msg besides "discovers"
 						continue
+
 					zone = self.systemState.getHardwareObjectByHwId(TID_Z, msg.zoneId)
 					if (zone == None):
 						continue
-					wasInZone = zone.wearablesInZone.contains(msg.wearableId, True)
-					nowInZone = (msg.signalStrength - zone.threshold > 0)
-					print('msg: ', msg.msgType, ', ', msg.wearableId, ', ', msg.zoneId, ', ', msg.signalStrength, 'now: ', nowInZone, 'was: ', wasInZone)
-					if (nowInZone != wasInZone):
-						# debug print
-						print("zone occupation change")
 
-						self.systemState.updateZoneOccupation(zone, msg.wearableId, nowInZone)
+					wasInZone = False
+					nowInZone = False
+					signalData = zone.wearablesInZone.get(msg.wearableId)
+
+					if (signalData != None): # wearable has been seen in zone recently
+						wasInZone = (signalData.sampleCount == MAX_SAMPLES) and (signalData.avgStrength > zone.threshold)
+						newAvgStrength = signalData.addSample(msg.signalStrength)
+						nowInZone = (signalData.sampleCount == MAX_SAMPLES) and (newAvgStrength > zone.threshold)
+					else: # wearable has NOT been seen in zone recently
+						signalData = SignalData(msg.signalStrength)
+						zone.wearablesInZone.add(msg.wearableId, signalData)
+
+					if (nowInZone != wasInZone): # wearable has entered or exited zone
+						if (not nowInZone):
+							zone.wearablesInZone.discard(msg.wearableId)
 
 						actionMsg = (zone, DIR_ENTER if nowInZone else DIR_EXIT)
 						self.systemState.actionQ.put(actionMsg, True, None)
-						
-					elif (nowInZone): # wearable already in zone -- update its time value
-						zone.wearablesInZone.updateTuple(msg.wearableId)
+
 				elif (msg.msgType == MSG_TYPE_DISC_W):
 					self.systemState.wearableIds.add(msg.wearableId)
 				elif (msg.msgType == MSG_TYPE_DISC_Z):

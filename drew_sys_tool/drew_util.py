@@ -48,32 +48,38 @@ class XmlControl():
 
     # parse all the data for devices
     self.devices = {}
-    for d in self.root.find('devices'):
-      name = d.find('name').text
-      xmlId = int(d.get('dId'))
-      hwId = d.find('hwId').text
-      devType = int(d.find('devType').text)
-      enter = int(d.find('enter').text)
-      exit = int(d.find('exit').text)
-      zone = int(d.find('zId').text)
-      self.devices[xmlId] = Device(name, xmlId, hwId, devType, enter, exit, zone)
+    devicesTag = self.root.find('devices')
+    if (devicesTag != None):
+      for d in devicesTag:
+        name = d.find('name').text
+        xmlId = int(d.get('dId'))
+        hwId = d.find('hwId').text
+        devType = int(d.find('devType').text)
+        enter = int(d.find('enter').text)
+        exit = int(d.find('exit').text)
+        zone = int(d.find('zId').text)
+        self.devices[xmlId] = Device(name, xmlId, hwId, devType, enter, exit, zone)
 
     # parse data for zones
     self.zones = {}
-    for z in self.root.find('zones'):
-      name = z.find('name').text
-      xmlId = int(z.get('zId'))
-      hwId = z.find('hwId').text
-      threshold = int(z.find('threshold').text)
-      self.zones[xmlId] = Zone(name, xmlId, hwId, threshold)
+    zonesTag = self.root.find('zones')
+    if (zonesTag != None):
+      for z in zonesTag:
+        name = z.find('name').text
+        xmlId = int(z.get('zId'))
+        hwId = int(z.find('hwId').text)
+        threshold = int(z.find('threshold').text)
+        self.zones[xmlId] = Zone(name, xmlId, hwId, threshold)
 
     # parse wearable data
     self.wearables = {}
-    for w in self.root.find('wearables'):
-      name = w.find('name').text
-      xmlId = int(w.get('wId'))
-      hwId = w.find('hwId').text
-      self.wearables[xmlId] = Wearable(name, xmlId, hwId)
+    wearablesTag = self.root.find('wearables')
+    if (wearablesTag != None):
+      for w in wearablesTag:
+        name = w.find('name').text
+        xmlId = int(w.get('wId'))
+        hwId = int(w.find('hwId').text)
+        self.wearables[xmlId] = Wearable(name, xmlId, hwId)
 
   def save(self):
     if self.filename == None:
@@ -138,7 +144,7 @@ class SystemState:
     self.serialComm = None
     while (self.serialComm == None):
       try:
-        self.serialComm = serial.Serial('COM12', 9600) # Establish the connection on a specific port
+        self.serialComm = serial.Serial('COM5', 9600) # Establish the connection on a specific port
       except:
         self.serialComm = None
         print('D.R.E.W. USB module not detected. Please connect now.')
@@ -206,11 +212,11 @@ class SystemState:
           hwIdList.remove(hwItem.hwId)
     return hwIdList
 
-  def updateZoneOccupation(self, zone, wearableId, nowInZone):
-    if (nowInZone):
-      zone.wearablesInZone.add( (wearableId, time.time()) )
-    else:
-      zone.wearablesInZone.discard(wearableId, True)
+  # def updateZoneOccupation(self, zone, wearableId, nowInZone):
+  #   if (nowInZone):
+  #     zone.wearablesInZone.add( (wearableId, time.time()) )
+  #   else:
+  #     zone.wearablesInZone.discard(wearableId, True)
 
   def setSystemPause(self, pauseFlag):
     # debug begin
@@ -243,10 +249,19 @@ class LockedDict:
     finally:
       self.lock.release()
 
+  def contains(self, key):
+    try:
+      self.lock.acquire()
+      containsKey = key in self.dict
+    finally:
+      self.lock.release()
+      return containsKey
+
   def discard(self, key):
     try:
       self.lock.acquire()
-      self.dict.discard(key)
+      if (key in self.dict):
+        del self.dict[key]
     finally:
       self.lock.release()
 
@@ -407,16 +422,16 @@ class SerialMessage():
     splitData = re.split('\,', data)
     self.msgType = splitData[0]
     if (self.msgType == MSG_TYPE_REG):          
-      self.wearableId = splitData[1]
-      self.zoneId = splitData[2]
+      self.wearableId = int(splitData[1])
+      self.zoneId = int(splitData[2])
       self.signalStrength = int(splitData[3])
     elif (self.msgType == MSG_TYPE_DISC_W):
-      self.wearableId = splitData[1]
+      self.wearableId = int(splitData[1])
       self.zoneId = None
       self.signalStrength = None
     else: # (self.msgType == MSG_TYPE_DISC_Z):
       self.wearableId = None
-      self.zoneId = splitData[1]
+      self.zoneId = int(splitData[1])
       self.signalStrength = None
 
 
@@ -431,3 +446,5 @@ class SignalData():
       self.sampleCount += 1
     self.avgStrength += (signalStrength - self.avgStrength) / self.sampleCount
     self.lastUpdate = time.time()
+    print('avgStrength: ', self.avgStrength)
+    return self.avgStrength

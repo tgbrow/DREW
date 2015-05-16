@@ -15,16 +15,17 @@ class ZoneEvictor():
 				currTime = time.time()
 
 				for zone in self.systemState.dicts[TID_Z].values():
-					for wearableId, signalData in zone.wearablesInZone.items():
-						if (currTime - signalData.lastUpdated > EVICT_TIME):
-							print('time dif: ', currTime - timeAdded)
-							self.wearablesInZone.discard(wearableId)
-							self.systemState.actionQ.put((zone, DIR_EXIT), True, None)
-
-					# for wearableId, timeAdded in zone.wearablesInZone.getCopyAsList():
-					# 	if (currTime - timeAdded > EVICT_TIME): 
-					# 		print('time dif: ', currTime - timeAdded)
-					# 		self.systemState.updateZoneOccupation(zone, wearableId, False)
-					# 		self.systemState.actionQ.put((zone, DIR_EXIT), True, None)
+					# Exception occurs if wearable leaves zone by dropping below zone threshold,
+					# since SerialReader will discard this entry in wearablesInZone while
+					# ZoneEvictor iterates through it. This is okay; just move on to next zone.
+					try:
+						for wearableId, signalData in zone.wearablesInZone.items():
+							if (currTime - signalData.lastUpdate > EVICT_TIME):
+								print('time dif: ', currTime - signalData.lastUpdate)
+								zone.wearablesInZone.discard(wearableId)
+								self.systemState.actionQ.put((zone, DIR_EXIT), True, None)
+					except:
+						print('Wearable left zone while ZoneEvictor checking that zone.')
+						continue
 					
 				time.sleep(2.5)

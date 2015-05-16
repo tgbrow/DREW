@@ -1,0 +1,8 @@
+1: 97
+2: 88-90
+3: 75
+4: 60-70
+
+pillars on 2nd floor
+each pillar about 25 ft from the next
+pillar #1 at distance of 5ft from zone module

@@ -185,6 +185,7 @@ class UiControl:
         zone = self.systemState.getHardwareObject(TID_Z, self.currXmlId[TID_Z])
         zone.name = self.dialogUis[TID_Z].inputName.text()
         zone.hwId = self.dialogUis[TID_Z].dropdownModule.currentData()
+        print('saving zone with hwId: ', zone.hwId)
         zone.threshold = self.dialogUis[TID_Z].spinnerThreshold.value()
         self.updateZoneTable(zone, self.newFlag)
         self.selectionUpdate(TID_Z)

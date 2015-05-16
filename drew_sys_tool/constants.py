@@ -49,4 +49,4 @@ RESUME = False
 ACTION_QUEUE_MAX = 25 
 
 #maximum number of samples to average
-MAX_SAMPLES = 5
+MAX_SAMPLES = 3
