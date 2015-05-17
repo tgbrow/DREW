@@ -141,14 +141,14 @@ class SystemState:
       if (len(self.dicts[i].keys()) != 0):
         self.nextIds[i] = max(self.dicts[i].keys()) + 1
     
-    # self.serialComm = None
-    # while (self.serialComm == None):
-    #   try:
-    #     self.serialComm = serial.Serial(comPort, 9600) # Establish the connection on a specific port
-    #   except:
-    #     self.serialComm = None
-    #     print('D.R.E.W. USB module not detected. Please connect now.')
-    #     time.sleep(5)
+    self.serialComm = None
+    while (self.serialComm == None):
+      try:
+        self.serialComm = serial.Serial(comPort, 9600) # Establish the connection on a specific port
+      except:
+        self.serialComm = None
+        print('D.R.E.W. USB module not detected. Please connect now.')
+        time.sleep(5)
 
     self.wearableIds = LockedSet()
     self.zoneIds = LockedSet()
