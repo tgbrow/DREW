@@ -7,8 +7,12 @@ from bluetooth_commander import *
 from serial_reader import *
 from zone_evictor import *
 
+comPort = 'COM1'
+if (len(sys.argv) > 1):
+	comPort = sys.argv[1]
+
 # create system state
-systemState = SystemState("config_test.xml")
+systemState = SystemState("config_test.xml", comPort)
 
 # first start BluetoothCommander
 print('starting commander')
