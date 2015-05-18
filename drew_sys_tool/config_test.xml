@@ -2,25 +2,25 @@
 <configuration>
 	<devices>
 		<device dId="0">
-			<name>device</name>
+			<name>The Device</name>
 			<hwId>8C:DE:52:21:2F:2A</hwId>
 			<devType>0</devType>
-			<enter>2</enter>
-			<exit>1</exit>
+			<enter>1</enter>
+			<exit>2</exit>
 			<zId>0</zId>
 		</device>
 	</devices>
 	<wearables>
 		<wearable wId="0">
-			<name>wearable</name>
+			<name>The Wearable</name>
 			<hwId>7</hwId>
 		</wearable>
 	</wearables>
 	<zones>
 		<zone zId="0">
-			<name>zone</name>
+			<name>The Zone</name>
 			<hwId>3</hwId>
-			<threshold>69</threshold>
+			<threshold>80</threshold>
 		</zone>
 	</zones>
 </configuration>

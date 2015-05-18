@@ -153,7 +153,7 @@ class SystemState:
     self.wearableIds = LockedSet()
     self.zoneIds = LockedSet()
     self.stop = False
-    self.pause = True
+    self.systemIsPaused = True
     self.threadsPaused = [False, False, False]
     self.actionQ = Queue(ACTION_QUEUE_MAX)
 
@@ -204,38 +204,29 @@ class SystemState:
     elif (typeId == TID_W):
       hwIdList = self.wearableIds.getCopyAsList() # *copy* the wearable ID list
     else:
+      # TODO -- send back list of (Plugable) Bluetooth devices
       print("ERROR: hardware discovery only valid for wearables and zones!")
-      hwIdList = ["FUCKYOU"]
+      hwIdList = []
 
     for hwItem in self.dicts[typeId].values():
         if hwItem.hwId in hwIdList:
           hwIdList.remove(hwItem.hwId)
     return hwIdList
 
-  # def updateZoneOccupation(self, zone, wearableId, nowInZone):
-  #   if (nowInZone):
-  #     zone.wearablesInZone.add( (wearableId, time.time()) )
-  #   else:
-  #     zone.wearablesInZone.discard(wearableId, True)
+  def nameInUse(self, typeId, givenName, currXmlId):
+    givenName = givenName.lower()
+    for hwObject in self.dicts[typeId].values():
+      if (hwObject.xmlId == currXmlId):
+        continue
+      name = hwObject.name.lower()
+      if (name == givenName):
+        return True
+    return False
 
   def setSystemPause(self, pauseFlag):
-    # debug begin
-    if (pauseFlag):
-      print("pausing system...")
-    else:
-      print("resuming system...")
-    #debug end
-
-    self.pause = pauseFlag
+    self.systemIsPaused = pauseFlag
     while((not pauseFlag) in self.threadsPaused):
       time.sleep(0.25) # don't return until all threads have seen the pause command
-    
-    # debug begin
-    if (pauseFlag):
-      print("pause done")
-    else:
-      print("resume done")
-    # debug end
     
 class LockedDict:
   def __init__(self):

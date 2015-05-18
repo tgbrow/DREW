@@ -11,7 +11,7 @@ class SerialReader():
 
 	def run(self):
 		while(not self.systemState.stop):
-			self.systemState.threadsPaused[THREAD_SR] = self.systemState.pause
+			self.systemState.threadsPaused[THREAD_SR] = self.systemState.systemIsPaused
 
 			if (self.serialComm.inWaiting() > 0): # if a message is available
 				msg = SerialMessage(self.serialComm.readline().decode())
@@ -19,7 +19,7 @@ class SerialReader():
 				if (msg.msgType == MSG_TYPE_REG):
 					print('msg: ', msg.msgType, ', ', msg.wearableId, ', ', msg.zoneId, ', ', msg.signalStrength)
 
-					if (self.systemState.pause):
+					if (self.systemState.systemIsPaused):
 						# if the system is paused, we throw out any msg besides "discovers"
 						continue
 

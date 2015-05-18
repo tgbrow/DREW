@@ -48,6 +48,16 @@ class Ui_ConfigDialog(object):
         self.labelConfig = QtWidgets.QLabel(ConfigDialog)
         self.labelConfig.setGeometry(QtCore.QRect(20, 20, 361, 16))
         self.labelConfig.setObjectName("labelConfig")
+        self.labelInvalidZone = QtWidgets.QLabel(ConfigDialog)
+        self.labelInvalidZone.setGeometry(QtCore.QRect(30, 90, 271, 20))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setItalic(True)
+        font.setWeight(75)
+        self.labelInvalidZone.setFont(font)
+        self.labelInvalidZone.setStyleSheet("color: rgb(255, 0, 0);")
+        self.labelInvalidZone.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.labelInvalidZone.setObjectName("labelInvalidZone")
 
         self.retranslateUi(ConfigDialog)
         QtCore.QMetaObject.connectSlotsByName(ConfigDialog)
@@ -61,4 +71,5 @@ class Ui_ConfigDialog(object):
         self.buttonSave.setText(_translate("ConfigDialog", "Save"))
         self.labelExitAction.setText(_translate("ConfigDialog", "Device Action on Zone Exit:"))
         self.labelConfig.setText(_translate("ConfigDialog", "Configuration for < DEVICE NAME >"))
+        self.labelInvalidZone.setText(_translate("ConfigDialog", "Invalid zone -- cannot save."))
 

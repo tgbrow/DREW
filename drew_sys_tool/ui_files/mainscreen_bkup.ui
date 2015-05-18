@@ -91,6 +91,8 @@
       </property>
      </column>
     </widget>
+    <zorder>tableStatus</zorder>
+    <zorder>label</zorder>
    </widget>
    <widget class="QWidget" name="tabHardware">
     <attribute name="title">
@@ -427,17 +429,28 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QPushButton" name="buttonPause">
+  <widget class="QPushButton" name="pauseButton">
    <property name="geometry">
     <rect>
-     <x>463</x>
+     <x>464</x>
      <y>2</y>
      <width>26</width>
      <height>26</height>
     </rect>
    </property>
+   <property name="toolTip">
+    <string>Pause System</string>
+   </property>
+   <property name="toolTipDuration">
+    <number>5</number>
+   </property>
    <property name="text">
     <string/>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/play.png</normaloff>
+     <normalon>../icons/pause.png</normalon>../icons/play.png</iconset>
    </property>
    <property name="iconSize">
     <size>
@@ -445,21 +458,24 @@
      <height>16</height>
     </size>
    </property>
+   <property name="default">
+    <bool>false</bool>
+   </property>
+   <property name="flat">
+    <bool>false</bool>
+   </property>
   </widget>
-  <widget class="QLabel" name="labelPauseStatus">
+  <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>317</x>
-     <y>7</y>
-     <width>141</width>
-     <height>16</height>
+     <x>350</x>
+     <y>0</y>
+     <width>47</width>
+     <height>13</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;System Active&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    <string>TextLabel</string>
    </property>
   </widget>
  </widget>

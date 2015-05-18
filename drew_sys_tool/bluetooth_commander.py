@@ -16,7 +16,7 @@ class BluetoothCommander:
 	def run(self):
 		# self.connect()
 		while not self.systemState.stop:
-			if self.systemState.pause:
+			if self.systemState.systemIsPaused:
 				self.systemState.threadsPaused[THREAD_BT] = True
 				time.sleep(PAUSE_SLEEP_TIME)
 			else:

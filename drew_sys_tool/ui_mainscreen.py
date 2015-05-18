@@ -178,6 +178,15 @@ class Ui_MainScreen(object):
         self.buttonClearConfig.setObjectName("buttonClearConfig")
         self.buttonGroupConfig.addWidget(self.buttonClearConfig)
         self.tabWidget.addTab(self.tabConfig, "")
+        self.buttonPause = QtWidgets.QPushButton(MainScreen)
+        self.buttonPause.setGeometry(QtCore.QRect(463, 2, 26, 26))
+        self.buttonPause.setText("")
+        self.buttonPause.setIconSize(QtCore.QSize(16, 16))
+        self.buttonPause.setObjectName("buttonPause")
+        self.labelPauseStatus = QtWidgets.QLabel(MainScreen)
+        self.labelPauseStatus.setGeometry(QtCore.QRect(317, 7, 141, 16))
+        self.labelPauseStatus.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.labelPauseStatus.setObjectName("labelPauseStatus")
 
         self.retranslateUi(MainScreen)
         self.tabWidget.setCurrentIndex(0)
@@ -231,4 +240,5 @@ class Ui_MainScreen(object):
         self.buttonEditConfig.setText(_translate("MainScreen", "Edit"))
         self.buttonClearConfig.setText(_translate("MainScreen", "Clear Settings"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabConfig), _translate("MainScreen", "System Setup"))
+        self.labelPauseStatus.setText(_translate("MainScreen", "<html><head/><body><p><span style=\" font-weight:600;\">System Active</span></p></body></html>"))
 
