@@ -355,7 +355,7 @@ class UiControl:
     def selectionUpdate(self, tableIdx):
         items = self.tables[tableIdx].selectedItems()
         if (len(items) > 0):
-            self.currXmlId[tableIdx] = items[0].data(1)
+            self.currXmlId[tableIdx] = items[0].data(5)
         else:
             self.currXmlId[tableIdx] = -1
         shouldEnable = ( len(self.tables[tableIdx].selectedIndexes()) != 0)
@@ -453,12 +453,14 @@ class UiControl:
             self.tables[TID_W].insertRow(0)
             # "Name" item with xmlId data
             item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(wearable.name)
-            item.setData(1, wearable.xmlId)
+            item.setData(5, wearable.xmlId)
             self.tables[TID_W].setItem(0, 0, item)
             # "Wearable ID" item
             item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(str(wearable.hwId))
             self.tables[TID_W].setItem(0, 1, item)
@@ -472,17 +474,20 @@ class UiControl:
             self.tables[TID_Z].insertRow(0)
             # "Name" item with xmlId data
             item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(zone.name)
-            item.setData(1, zone.xmlId)
+            item.setData(5, zone.xmlId)
             self.tables[TID_Z].setItem(0, 0, item)
             # "Module ID" item
             item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(str(zone.hwId))
             self.tables[TID_Z].setItem(0, 1, item)
             # "Threshold" item
             item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(str(zone.threshold))
             self.tables[TID_Z].setItem(0, 2, item)
@@ -497,19 +502,22 @@ class UiControl:
             self.tables[TID_D].insertRow(0)
             # "Name" item with xmlId data
             item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(device.name)
-            item.setData(1, device.xmlId)
+            item.setData(5, device.xmlId)
             self.tables[TID_D].setItem(0, 0, item)
+            # "Bluetooth Address" item
+            item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setText(device.hwId)
+            self.tables[TID_D].setItem(0, 1, item)
             # "Type" item
             item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(DEVICE_TYPES[device.devType])
-            self.tables[TID_D].setItem(0, 1, item)
-            # "State" item
-            item = QTableWidgetItem()
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-            item.setText("TODO")
             self.tables[TID_D].setItem(0, 2, item)
         else:
             items = self.tables[TID_D].selectedItems()
@@ -526,27 +534,31 @@ class UiControl:
             configTable.insertRow(0)
             # "Device" item with xmlId data
             item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(device.name)
-            item.setData(1, device.xmlId)
+            item.setData(5, device.xmlId)
             configTable.setItem(0, 0, item)
             # "Containing Zone" item
             item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             if (device.zone == -1):
                 text = "[unassigned]"
             else:
                 text = self.systemState.dicts[TID_Z][device.zone].name
             item.setText(text)
-            item.setData(1, device.zone)
+            item.setData(5, device.zone)
             configTable.setItem(0, 1, item)
             # "Entry Action" item
             item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(DEVICE_ACTIONS[device.devType][device.enter])
             configTable.setItem(0, 2, item)
             # "Exit Action" item
             item = QTableWidgetItem()
+            item.setTextAlignment(ITEM_ALIGN_FLAGS)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             item.setText(DEVICE_ACTIONS[device.devType][device.exit])
             configTable.setItem(0, 3, item)
@@ -558,7 +570,7 @@ class UiControl:
         else:
             text = self.systemState.dicts[TID_Z][device.zone].name
         items[1].setText(text)
-        items[1].setData(1, device.zone)
+        items[1].setData(5, device.zone)
         items[2].setText(DEVICE_ACTIONS[device.devType][device.enter])
         items[3].setText(DEVICE_ACTIONS[device.devType][device.exit])
 

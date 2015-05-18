@@ -56,7 +56,7 @@
        <x>10</x>
        <y>10</y>
        <width>450</width>
-       <height>580</height>
+       <height>281</height>
       </rect>
      </property>
      <property name="sizeAdjustPolicy">
@@ -80,14 +80,67 @@
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
      </attribute>
+     <attribute name="verticalHeaderDefaultSectionSize">
+      <number>25</number>
+     </attribute>
+     <attribute name="verticalHeaderMinimumSectionSize">
+      <number>25</number>
+     </attribute>
      <column>
       <property name="text">
-       <string>Zone Name</string>
+       <string>Zone</string>
       </property>
      </column>
      <column>
       <property name="text">
        <string>Wearables Present</string>
+      </property>
+     </column>
+    </widget>
+    <widget class="QTableWidget" name="tableStatus_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>310</y>
+       <width>450</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustIgnored</enum>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>false</bool>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <attribute name="horizontalHeaderDefaultSectionSize">
+      <number>224</number>
+     </attribute>
+     <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderDefaultSectionSize">
+      <number>25</number>
+     </attribute>
+     <attribute name="verticalHeaderMinimumSectionSize">
+      <number>25</number>
+     </attribute>
+     <column>
+      <property name="text">
+       <string>Device</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Current State</string>
       </property>
      </column>
     </widget>
@@ -119,6 +172,12 @@
      </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderDefaultSectionSize">
+      <number>25</number>
+     </attribute>
+     <attribute name="verticalHeaderMinimumSectionSize">
+      <number>25</number>
      </attribute>
      <column>
       <property name="text">
@@ -247,6 +306,12 @@
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
+     <attribute name="verticalHeaderDefaultSectionSize">
+      <number>25</number>
+     </attribute>
+     <attribute name="verticalHeaderMinimumSectionSize">
+      <number>25</number>
+     </attribute>
      <column>
       <property name="text">
        <string>Name</string>
@@ -254,12 +319,12 @@
      </column>
      <column>
       <property name="text">
-       <string>Type</string>
+       <string>Bluetooth Address</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>State</string>
+       <string>Type</string>
       </property>
      </column>
     </widget>
@@ -333,6 +398,12 @@
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
+     <attribute name="verticalHeaderDefaultSectionSize">
+      <number>25</number>
+     </attribute>
+     <attribute name="verticalHeaderMinimumSectionSize">
+      <number>25</number>
+     </attribute>
      <column>
       <property name="text">
        <string>Name</string>
@@ -377,6 +448,12 @@
      </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderDefaultSectionSize">
+      <number>25</number>
+     </attribute>
+     <attribute name="verticalHeaderMinimumSectionSize">
+      <number>25</number>
      </attribute>
      <column>
       <property name="text">

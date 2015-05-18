@@ -1,3 +1,5 @@
+from PyQt5 import QtCore
+
 # type IDs corresponding to different hardware types
 TID_W = 0 # wearable
 TID_Z = 1 # zone
@@ -48,5 +50,8 @@ RESUME = False
 # maximum size of the queue to pass actions to the bluetooth commander
 ACTION_QUEUE_MAX = 25 
 
-#maximum number of samples to average
+# maximum number of samples to average
 MAX_SAMPLES = 3
+
+# sets alignment for text of entries in tables
+ITEM_ALIGN_FLAGS = QtCore.Qt.AlignVCenter # | QtCore.Qt.AlignHCenter
