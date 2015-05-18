@@ -31,6 +31,10 @@ class UiControl:
         self.pauseChangeDialogUi.labelGIF.setMovie(self.pauseChangeGif)
         self.pauseChangeThread = PauseChangeThread(self.systemState)
 
+        self.statusRefreshThread1 = StatusRefreshThread()
+        self.statusRefreshThread2 = StatusRefreshThread()
+        self.statuRefreshThreadSelect = False 
+
         self.dialogs = []
         for i in range(NUM_DIALOGS):
             dialog = QDialog()
@@ -57,6 +61,7 @@ class UiControl:
 
         # populate tables with current system info
         self.populateHardwareTables()
+        self.createZoneOccupationTable()
 
         # populate device type dropdown
         dropdown = self.dialogUis[TID_D].dropdownType
@@ -74,6 +79,9 @@ class UiControl:
 
         # now that everything is set up, let the other threads start doing their thing
         self.systemState.setSystemPause(RESUME)
+
+        # since we start in the status tab, we want to make sure it's updating when we begin
+        self.statusRefresh()
 
         # let's go!
         self.mainWindow.show()
@@ -123,6 +131,9 @@ class UiControl:
         self.mainUi.buttonPause.clicked.connect(lambda: self.beginPauseChange((not self.systemState.systemIsPaused), True))
         self.pauseChangeThread.doneSignal.connect(lambda: self.finishPauseChange())
 
+        self.statusRefreshThread1.refreshSignal.connect(lambda: self.statusRefresh())
+        self.statusRefreshThread2.refreshSignal.connect(lambda: self.statusRefresh())
+
         # link values of zone threshold slider & spinner 
         spinner = self.dialogUis[TID_Z].spinnerThreshold
         slider = self.dialogUis[TID_Z].sliderThreshold
@@ -135,7 +146,7 @@ class UiControl:
 
     def tabChange(self, tabNum):
         if (tabNum == TAB_STAT):
-            return # TODO -- update status table
+            self.statusRefresh()
         elif (tabNum == TAB_SYS):
             self.createConfigTable()
         # other cases -> do nothing 
@@ -176,6 +187,22 @@ class UiControl:
 
         self.pauseChangeGif.stop()
         self.pauseChangeDialog.hide()
+
+    def statusRefresh(self):
+        zoTable = self.mainUi.tableZoneOccupation
+        # update each row (zone) in zone occupation table
+        for row in range(zoTable.rowCount()):
+            items = [zoTable.item(row, 0), zoTable.item(row, 1)]
+            zone = self.systemState.getHardwareObject(TID_Z, items[0].data(5))
+            self.updateZoneOccupationTable(zone, items)
+        # if still in status tab, need to keep refreshing
+        if (self.mainUi.tabWidget.currentIndex() == TAB_STAT):
+            # alternate between two refresh threads so signal emits don't "overlap"
+            if (self.statuRefreshThreadSelect):
+                self.statusRefreshThread1.start()
+            else:
+                self.statusRefreshThread2.start()
+            self.statuRefreshThreadSelect = (not self.statuRefreshThreadSelect)
 
     def editWearable(self, isNew, isAfterPause=False):
         self.beginPauseChange(PAUSE, False)
@@ -452,14 +479,14 @@ class UiControl:
             # "Name" item with xmlId data
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             item.setText(wearable.name)
             item.setData(5, wearable.xmlId)
             self.tables[TID_W].setItem(0, 0, item)
             # "Wearable ID" item
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             item.setText(str(wearable.hwId))
             self.tables[TID_W].setItem(0, 1, item)
         else:
@@ -473,20 +500,20 @@ class UiControl:
             # "Name" item with xmlId data
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             item.setText(zone.name)
             item.setData(5, zone.xmlId)
             self.tables[TID_Z].setItem(0, 0, item)
             # "Module ID" item
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             item.setText(str(zone.hwId))
             self.tables[TID_Z].setItem(0, 1, item)
             # "Threshold" item
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             item.setText(str(zone.threshold))
             self.tables[TID_Z].setItem(0, 2, item)
         else:
@@ -501,20 +528,20 @@ class UiControl:
             # "Name" item with xmlId data
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             item.setText(device.name)
             item.setData(5, device.xmlId)
             self.tables[TID_D].setItem(0, 0, item)
             # "Bluetooth Address" item
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             item.setText(device.hwId)
             self.tables[TID_D].setItem(0, 1, item)
             # "Type" item
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             item.setText(DEVICE_TYPES[device.devType])
             self.tables[TID_D].setItem(0, 2, item)
         else:
@@ -533,14 +560,14 @@ class UiControl:
             # "Device" item with xmlId data
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             item.setText(device.name)
             item.setData(5, device.xmlId)
             configTable.setItem(0, 0, item)
             # "Containing Zone" item
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             if (device.zone == -1):
                 text = "[unassigned]"
             else:
@@ -551,13 +578,13 @@ class UiControl:
             # "Entry Action" item
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             item.setText(DEVICE_ACTIONS[device.devType][device.enter])
             configTable.setItem(0, 2, item)
             # "Exit Action" item
             item = QTableWidgetItem()
             item.setTextAlignment(ITEM_ALIGN_FLAGS)
-            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            item.setFlags(ITEM_INTERACT_FLAGS)
             item.setText(DEVICE_ACTIONS[device.devType][device.exit])
             configTable.setItem(0, 3, item)
 
@@ -571,6 +598,45 @@ class UiControl:
         items[1].setData(5, device.zone)
         items[2].setText(DEVICE_ACTIONS[device.devType][device.enter])
         items[3].setText(DEVICE_ACTIONS[device.devType][device.exit])
+
+    def createZoneOccupationTable(self):
+        for zone in self.systemState.dicts[TID_Z].values():
+            self.updateZoneOccupationTable(zone)
+
+    def updateZoneOccupationTable(self, zone, tableItems=None):
+        zoTable = self.mainUi.tableZoneOccupation
+
+        if (tableItems == None):
+            tableItems = []
+            for i in range(2):
+                item = QTableWidgetItem()
+                item.setTextAlignment(ITEM_ALIGN_FLAGS)
+                item.setFlags(ITEM_INTERACT_FLAGS)
+                tableItems.append(item)
+            zoTable.insertRow(0)
+            zoTable.setItem(0, 0, tableItems[0])
+            zoTable.setItem(0, 1, tableItems[1])
+
+        tableItems[0].setText(zone.name)
+        tableItems[0].setData(5, zone.xmlId)
+
+        wearablesPresent = ""
+        firstOneFlag = True
+        wearableIds = zone.wearablesInZone.keys()
+
+        if (len(wearableIds) == 0):
+            wearablesPresent = "[none]"
+        else:
+            for wearbleId in wearableIds:
+                wearable = self.systemState.getHardwareObjectByHwId(TID_W, wearbleId)
+                if (firstOneFlag):
+                    firstOneFlag = False
+                else:
+                    wearablesPresent = wearablesPresent + ", "
+                wearablesPresent = wearablesPresent + wearable.name
+
+        tableItems[1].setText(wearablesPresent)
+
 
 class PauseChangeThread(QtCore.QThread):
     isDone = False
@@ -589,3 +655,11 @@ class PauseChangeThread(QtCore.QThread):
         self.systemState.setSystemPause(self.action)
         self.doneSignal.emit()
         self.isDone = True
+
+
+class StatusRefreshThread(QtCore.QThread):
+    refreshSignal = QtCore.pyqtSignal()
+
+    def run(self):
+        time.sleep(2.5)
+        self.refreshSignal.emit()

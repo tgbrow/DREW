@@ -22,5 +22,10 @@
 			<hwId>3</hwId>
 			<threshold>80</threshold>
 		</zone>
+		<zone zId="1">
+			<name>That Other Zone</name>
+			<hwId>8</hwId>
+			<threshold>22</threshold>
+		</zone>
 	</zones>
 </configuration>
