@@ -96,7 +96,7 @@ class UiControl:
         self.mainUi.buttonDeleteDevice.clicked.connect(lambda: self.deleteTableEntry(TID_D))
         self.mainUi.buttonClearConfig.clicked.connect(lambda: self.clearConfig())
 
-        # dialog "Cancel" buttons -- TODO
+        # dialog "Cancel" buttons
         self.dialogUis[TID_W].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_W))
         self.dialogUis[TID_Z].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_Z))
         self.dialogUis[TID_D].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_D))
@@ -446,8 +446,6 @@ class UiControl:
         for device in self.systemState.dicts[TID_D].values():
             self.updateDeviceTable(device, True)
 
-        # TODO table of device configurations
-
     def updateWearableTable(self, wearable, isNew):
         if (isNew):
             self.tables[TID_W].insertRow(0)
@@ -522,8 +520,8 @@ class UiControl:
         else:
             items = self.tables[TID_D].selectedItems()
             items[0].setText(device.name)
-            items[1].setText(DEVICE_TYPES[device.devType])
-            items[2].setText("TODO")
+            items[2].setText(device.hwId)
+            items[2].setText(DEVICE_TYPES[device.devType])
 
     def createConfigTable(self):
         configTable = self.tables[TID_C]
