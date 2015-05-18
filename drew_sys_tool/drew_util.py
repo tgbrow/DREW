@@ -181,7 +181,7 @@ class SystemState:
     self.dicts[TID_D][xmlId] = device
     return device
 
-  # TODO -- rename this method
+  # TODO -- rename this method "--ByXmlId"
   def getHardwareObject(self, typeId, xmlId):
     return self.dicts[typeId][xmlId]
 

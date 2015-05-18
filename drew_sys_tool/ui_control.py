@@ -9,6 +9,8 @@ from ui_pausechangedialog import Ui_PauseChangeDialog
 from drew_util import *
 from constants import *
 
+# TODO -- "Discovering..." with waiting GIF on dropdown refresh
+
 class UiControl:
     def __init__(self, systemState):
         self.systemState = systemState
@@ -301,9 +303,8 @@ class UiControl:
             self.beginPauseChange(RESUME, False)
         self.dialogs[TID_W].hide()
 
-    # TODO -- add zone to status tab table (or update it) upon saving
-    # TODO -- add device to status tab table (or update it) upon saving
     def saveZone(self):
+        # disallow duplicate names
         givenName = (self.dialogUis[TID_Z].inputName.text()).strip()
         if (self.systemState.nameInUse(TID_Z, givenName, self.currXmlId[TID_Z])):
             self.dialogUis[TID_Z].labelInvalidName.setVisible(True)
@@ -311,6 +312,7 @@ class UiControl:
         else:
             self.dialogUis[TID_Z].labelInvalidName.setVisible(False)
 
+        # disallow invalid hardware IDs
         selectedHwId = self.dialogUis[TID_Z].dropdownModule.currentData()
         if (selectedHwId == -1):
             self.dialogUis[TID_Z].labelInvalidModule.setVisible(True)
@@ -318,24 +320,40 @@ class UiControl:
         else:
             self.dialogUis[TID_Z].labelInvalidModule.setVisible(False)
 
+        # input validated -- do the save operation
         zone = self.systemState.getHardwareObject(TID_Z, self.currXmlId[TID_Z])
         zone.name = givenName
         zone.hwId = selectedHwId
         zone.threshold = self.dialogUis[TID_Z].spinnerThreshold.value()
         self.updateZoneTable(zone, self.newFlag)
         self.selectionUpdate(TID_Z)
+
+        # update zone occupation table in status tab
+        if (self.newFlag):
+            self.updateZoneOccupationTableRow(zone)
+        else:
+            zoTable = self.mainUi.tableZoneOccupation
+            for row in range(zoTable.rowCount()):
+                if (zoTable.item(row, 0).data(5) == zone.xmlId):
+                    items = [zoTable.item(row, 0), zoTable.item(row, 1)]
+                    self.updateZoneOccupationTableRow(zone, items)
+                    break
+
+        self.updateDeviceStateTableRow
         if (not self.manuallyPaused):
             self.beginPauseChange(RESUME, False)
         self.dialogs[TID_Z].hide()
 
     def saveDevice(self):
+        # disallow duplicate names
         givenName = (self.dialogUis[TID_D].inputName.text()).strip()
         if (self.systemState.nameInUse(TID_D, givenName, self.currXmlId[TID_D])):
             self.dialogUis[TID_D].labelInvalidName.setVisible(True)
             return
         else:
             self.dialogUis[TID_D].labelInvalidName.setVisible(False)
-
+        
+        # disallow invalid hardware IDs
         selectedHwId = self.dialogUis[TID_D].dropdownDevice.currentData()
         if (selectedHwId == 'INVALID'):
             self.dialogUis[TID_D].labelInvalidDevice.setVisible(True)
@@ -343,12 +361,25 @@ class UiControl:
         else:
             self.dialogUis[TID_D].labelInvalidDevice.setVisible(False)
 
+        # input validated -- do the save operation
         device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_D])
         device.name = givenName
         device.hwId = selectedHwId
         device.devType = self.dialogUis[TID_D].dropdownType.currentData()
         self.updateDeviceTable(device, self.newFlag)
         self.selectionUpdate(TID_D)
+
+        # update device state table in status tab
+        if (self.newFlag):
+            self.updateDeviceStateTableRow(zone)
+        else:
+            dsTable = self.mainUi.tableDeviceState
+            for row in range(dsTable.rowCount()):
+                if (dsTable.item(row, 0).data(5) == device.xmlId):
+                    items = [dsTable.item(row, 0), dsTable.item(row, 1)]
+                    self.updateDeviceStateTableRow(zone, items)
+                    break
+
         if (not self.manuallyPaused):
             self.beginPauseChange(RESUME, False)
         self.dialogs[TID_D].hide()
@@ -689,7 +720,6 @@ class PauseChangeThread(QtCore.QThread):
         self.systemState.setSystemPause(self.action)
         self.doneSignal.emit()
         self.isDone = True
-
 
 class StatusRefreshThread(QtCore.QThread):
     refreshSignal = QtCore.pyqtSignal()
