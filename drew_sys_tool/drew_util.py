@@ -15,7 +15,7 @@ class Zone():
     self.xmlId = xmlId
     self.hwId = hwId
     self.threshold = threshold
-    self.wearablesInZone = LockedDict()
+    self.wearablesInZone = LockedDict() # note: keys are the wearable hwId, not xmlId
 
 class Device():
   def __init__(self, name='default_device', xmlId=None, hwId=None, devType=0, enter=2, exit=1, zone=-1):
@@ -26,6 +26,7 @@ class Device():
     self.enter = enter
     self.exit = exit
     self.zone = zone # note: this is the associated zone's XML ID
+    self.status = 0 # default to unavailable
 
 class Wearable():
   def __init__(self, name='default_wearable', xmlId=None, hwId=None):
@@ -363,49 +364,53 @@ class BtController():
     self.hwId = hwId
     self.connected = False
     self.btaps = None
-
-    self.connect() # connect to the device
+    self.status = 0 # 0 is unavailable (connected = false)
+    # self.connect() # connect to the device
 
   def connect(self):
     # connect to a the given bluetooth device
     try:
       self.btaps = libbtaps.BTaps(self.hwId)
       self.connected = self.btaps.connect()
+      if self.connected:
+        if self.btaps.get_switch_state()[0]:
+          self.status = 2 # On
+        else:
+          self.status = 1 # Off
+      else:
+        print('WARNING: failed to connect to bt device:', self.hwId)
+        # set these manually because i'm paranoid
+        self.connected = False
+        self.status = 0 # unavailable
     except:
-      print('ERROR: failed to connect to bt device')
+      print('WARNING: failed to connect to bt device:', self.hwId)
       self.connected = False
-    print('BtController connected: ', self.connected)
+      self.status = 0 # unavailable
+    print('BtController hwId:', self.hwId, ', connected:', self.connected)
 
   def disconnect(self):
-    #disconnect from the current device
     if self.btaps != None:
       self.btaps.disconnect()
       self.connected = False
       self.btaps = None
+      self.status = 0
       # print('Disconnected from Bluetooth Device, hwId: ', self.hwId)
 
-
   def setState(self, action):
-    if action == 0:
-      #ignore the device or not connected
+    if action == 0: # ignore action
       return
     elif not self.connected:
-      print('not connected')
+      print('ERROR: cannot set device state, not connected: ', self.hwId)
+      self.status = 0
+      return
     else:
       if action == 1:
         self.btaps.set_switch(False) #turn device off
+        self.status = 1
       elif action == 2:
         self.btaps.set_switch(True) #turn device on
+        self.status = 2
 
-  def getState(self):
-    if not self.connected:
-      return
-    state = -1
-    if self.btaps.get_switch_state()[0]:
-      state = 2
-    else:
-      state = 1
-    return state
 
 class SerialMessage():
   def __init__(self, data):
