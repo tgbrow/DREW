@@ -50,7 +50,7 @@
     <attribute name="title">
      <string>Status</string>
     </attribute>
-    <widget class="QTableWidget" name="tableStatus">
+    <widget class="QTableWidget" name="tableZoneOccupation">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -80,6 +80,9 @@
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
      </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
       <number>25</number>
      </attribute>
@@ -97,7 +100,7 @@
       </property>
      </column>
     </widget>
-    <widget class="QTableWidget" name="tableStatus_2">
+    <widget class="QTableWidget" name="tableDeviceState">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -126,6 +129,9 @@
      </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
       <number>25</number>

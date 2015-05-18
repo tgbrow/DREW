@@ -54,4 +54,5 @@ ACTION_QUEUE_MAX = 25
 MAX_SAMPLES = 3
 
 # sets alignment for text of entries in tables
-ITEM_ALIGN_FLAGS = QtCore.Qt.AlignVCenter # | QtCore.Qt.AlignHCenter
+ITEM_ALIGN_FLAGS = QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter
+ITEM_INTERACT_FLAGS = QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
