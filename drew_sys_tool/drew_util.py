@@ -8,6 +8,7 @@ import threading
 from queue import Queue
 import re
 import time
+from bluetooth import *
 
 class Zone():
   def __init__(self, name='default_zone', xmlId=None, hwId=None, threshold=None):
@@ -207,7 +208,9 @@ class SystemState:
     else:
       # TODO -- send back list of (Plugable) Bluetooth devices
       print("ERROR: hardware discovery only valid for wearables and zones!")
-      hwIdList = []
+      print('scanning for bluetooth devices')
+      hwIdList = discover_devices(lookup_names=True)
+      # hwIdList = near
 
     for hwItem in self.dicts[typeId].values():
         if hwItem.hwId in hwIdList:

@@ -425,8 +425,8 @@ class UiControl:
         dropdown = self.dialogUis[TID_D].dropdownDevice
         dropdown.clear()
 
-        for hwId in hwIdList:
-            dropdown.addItem(str(hwId), hwId)
+        for hwId, name in hwIdList:
+            dropdown.addItem(hwId + " - " + name, hwId)
 
         # add and select current hwId if editing existing zone
         if (not self.newFlag):

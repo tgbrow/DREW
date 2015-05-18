@@ -36,7 +36,7 @@ class BluetoothCommander:
 							# for each device in system state, check if in zone
 							if device.zone == zone.xmlId:
 								if not self.controllers[device.hwId].connected:
-									print('Attempting to connect to device hwId:', device.hwId)
+									# print('Attempting to connect to device hwId:', device.hwId)
 									self.controllers[device.hwId].connect()
 
 								newState = device.exit if action == DIR_EXIT else device.enter
