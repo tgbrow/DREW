@@ -9,6 +9,8 @@ from ui_pausechangedialog import Ui_PauseChangeDialog
 from drew_util import *
 from constants import *
 
+# TODO -- "Discovering..." with waiting GIF on dropdown refresh
+
 class UiControl:
     def __init__(self, systemState):
         self.systemState = systemState
@@ -62,6 +64,7 @@ class UiControl:
         # populate tables with current system info
         self.populateHardwareTables()
         self.createZoneOccupationTable()
+        self.createDeviceStateTable()
 
         # populate device type dropdown
         dropdown = self.dialogUis[TID_D].dropdownType
@@ -194,7 +197,15 @@ class UiControl:
         for row in range(zoTable.rowCount()):
             items = [zoTable.item(row, 0), zoTable.item(row, 1)]
             zone = self.systemState.getHardwareObject(TID_Z, items[0].data(5))
-            self.updateZoneOccupationTable(zone, items)
+            self.updateZoneOccupationTableRow(zone, items)
+
+        dsTable = self.mainUi.tableDeviceState
+        # update each row (zone) in zone occupation table
+        for row in range(dsTable.rowCount()):
+            items = [dsTable.item(row, 0), dsTable.item(row, 1)]
+            device = self.systemState.getHardwareObject(TID_D, items[0].data(5))
+            self.updateDeviceStateTableRow(device, items)
+
         # if still in status tab, need to keep refreshing
         if (self.mainUi.tabWidget.currentIndex() == TAB_STAT):
             # alternate between two refresh threads so signal emits don't "overlap"
@@ -293,6 +304,7 @@ class UiControl:
         self.dialogs[TID_W].hide()
 
     def saveZone(self):
+        # disallow duplicate names
         givenName = (self.dialogUis[TID_Z].inputName.text()).strip()
         if (self.systemState.nameInUse(TID_Z, givenName, self.currXmlId[TID_Z])):
             self.dialogUis[TID_Z].labelInvalidName.setVisible(True)
@@ -300,6 +312,7 @@ class UiControl:
         else:
             self.dialogUis[TID_Z].labelInvalidName.setVisible(False)
 
+        # disallow invalid hardware IDs
         selectedHwId = self.dialogUis[TID_Z].dropdownModule.currentData()
         if (selectedHwId == -1):
             self.dialogUis[TID_Z].labelInvalidModule.setVisible(True)
@@ -307,24 +320,40 @@ class UiControl:
         else:
             self.dialogUis[TID_Z].labelInvalidModule.setVisible(False)
 
+        # input validated -- do the save operation
         zone = self.systemState.getHardwareObject(TID_Z, self.currXmlId[TID_Z])
         zone.name = givenName
         zone.hwId = selectedHwId
         zone.threshold = self.dialogUis[TID_Z].spinnerThreshold.value()
         self.updateZoneTable(zone, self.newFlag)
         self.selectionUpdate(TID_Z)
+
+        # update zone occupation table in status tab
+        if (self.newFlag):
+            self.updateZoneOccupationTableRow(zone)
+        else:
+            zoTable = self.mainUi.tableZoneOccupation
+            for row in range(zoTable.rowCount()):
+                if (zoTable.item(row, 0).data(5) == zone.xmlId):
+                    items = [zoTable.item(row, 0), zoTable.item(row, 1)]
+                    self.updateZoneOccupationTableRow(zone, items)
+                    break
+
+        self.updateDeviceStateTableRow
         if (not self.manuallyPaused):
             self.beginPauseChange(RESUME, False)
         self.dialogs[TID_Z].hide()
 
     def saveDevice(self):
+        # disallow duplicate names
         givenName = (self.dialogUis[TID_D].inputName.text()).strip()
         if (self.systemState.nameInUse(TID_D, givenName, self.currXmlId[TID_D])):
             self.dialogUis[TID_D].labelInvalidName.setVisible(True)
             return
         else:
             self.dialogUis[TID_D].labelInvalidName.setVisible(False)
-
+        
+        # disallow invalid hardware IDs
         selectedHwId = self.dialogUis[TID_D].dropdownDevice.currentData()
         if (selectedHwId == 'INVALID'):
             self.dialogUis[TID_D].labelInvalidDevice.setVisible(True)
@@ -332,12 +361,25 @@ class UiControl:
         else:
             self.dialogUis[TID_D].labelInvalidDevice.setVisible(False)
 
+        # input validated -- do the save operation
         device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_D])
         device.name = givenName
         device.hwId = selectedHwId
         device.devType = self.dialogUis[TID_D].dropdownType.currentData()
         self.updateDeviceTable(device, self.newFlag)
         self.selectionUpdate(TID_D)
+
+        # update device state table in status tab
+        if (self.newFlag):
+            self.updateDeviceStateTableRow(zone)
+        else:
+            dsTable = self.mainUi.tableDeviceState
+            for row in range(dsTable.rowCount()):
+                if (dsTable.item(row, 0).data(5) == device.xmlId):
+                    items = [dsTable.item(row, 0), dsTable.item(row, 1)]
+                    self.updateDeviceStateTableRow(zone, items)
+                    break
+
         if (not self.manuallyPaused):
             self.beginPauseChange(RESUME, False)
         self.dialogs[TID_D].hide()
@@ -361,6 +403,8 @@ class UiControl:
             self.beginPauseChange(RESUME, False)
         self.dialogs[TID_C].hide()
 
+    # TODO -- if zone is deleted, remove it from status tab table
+    # TODO -- if device is deleted, remove it from status tab table
     def deleteTableEntry(self, typeId):
         # TODO -- handle (attempted) deletion of a zone used by device config(s)
         self.systemState.setSystemPause(PAUSE)
@@ -601,9 +645,9 @@ class UiControl:
 
     def createZoneOccupationTable(self):
         for zone in self.systemState.dicts[TID_Z].values():
-            self.updateZoneOccupationTable(zone)
+            self.updateZoneOccupationTableRow(zone)
 
-    def updateZoneOccupationTable(self, zone, tableItems=None):
+    def updateZoneOccupationTableRow(self, zone, tableItems=None):
         zoTable = self.mainUi.tableZoneOccupation
 
         if (tableItems == None):
@@ -637,6 +681,27 @@ class UiControl:
 
         tableItems[1].setText(wearablesPresent)
 
+    def createDeviceStateTable(self):
+        for device in self.systemState.dicts[TID_D].values():
+            self.updateDeviceStateTableRow(device)
+
+    def updateDeviceStateTableRow(self, device, tableItems=None):
+        dsTable = self.mainUi.tableDeviceState
+
+        if (tableItems == None):
+            tableItems = []
+            for i in range(2):
+                item = QTableWidgetItem()
+                item.setTextAlignment(ITEM_ALIGN_FLAGS)
+                item.setFlags(ITEM_INTERACT_FLAGS)
+                tableItems.append(item)
+            dsTable.insertRow(0)
+            dsTable.setItem(0, 0, tableItems[0])
+            dsTable.setItem(0, 1, tableItems[1])
+
+        tableItems[0].setText(device.name)
+        tableItems[0].setData(5, device.xmlId)
+        tableItems[1].setText(DEVICE_STATES[device.devType][device.state])
 
 class PauseChangeThread(QtCore.QThread):
     isDone = False
@@ -656,10 +721,9 @@ class PauseChangeThread(QtCore.QThread):
         self.doneSignal.emit()
         self.isDone = True
 
-
 class StatusRefreshThread(QtCore.QThread):
     refreshSignal = QtCore.pyqtSignal()
 
     def run(self):
-        time.sleep(2.5)
+        time.sleep(2)
         self.refreshSignal.emit()

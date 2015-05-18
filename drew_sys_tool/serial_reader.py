@@ -1,8 +1,8 @@
 from drew_util import SerialMessage, SignalData
 from constants import *
 import time
-# import serial
-# import re
+
+# TODO -- throw out messages from wearables that aren't assigned in the system
 
 class SerialReader():
 	def __init__(self, systemState):
