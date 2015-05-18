@@ -13,7 +13,7 @@ class BluetoothCommander:
 		for device in self.systemState.dicts[TID_D].values():
 			self.controllers[device.hwId] = BtController(device.hwId)
 			self.controllers[device.hwId].connect()
-			device.status = self.controllers[device.hwId].status
+			device.state = self.controllers[device.hwId].state
 
 	def run(self):
 		# do this here? or in constructor?
@@ -37,10 +37,11 @@ class BluetoothCommander:
 							if device.zone == zone.xmlId:
 								if not self.controllers[device.hwId].connected:
 									print('Attempting to connect to device hwId:', device.hwId)
+									self.controllers[device.hwId].connect()
 
 								newState = device.exit if action == DIR_EXIT else device.enter
 								self.controllers[device.hwId].setState(newState)
-								device.status = self.controllers[device.hwId].status
+								device.state = self.controllers[device.hwId].state
 					except:
 						# exception raised when removing work item from queue
 						print('ERROR: BluetoothCommander has no battle orders to execute')

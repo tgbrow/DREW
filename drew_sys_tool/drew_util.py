@@ -26,7 +26,7 @@ class Device():
     self.enter = enter
     self.exit = exit
     self.zone = zone # note: this is the associated zone's XML ID
-    self.status = 0 # default to unavailable
+    self.state = 0 # default to unavailable
 
 class Wearable():
   def __init__(self, name='default_wearable', xmlId=None, hwId=None):
@@ -364,7 +364,7 @@ class BtController():
     self.hwId = hwId
     self.connected = False
     self.btaps = None
-    self.status = 0 # 0 is unavailable (connected = false)
+    self.state = 0 # 0 is unavailable (connected = false)
     # self.connect() # connect to the device
 
   def connect(self):
@@ -374,18 +374,18 @@ class BtController():
       self.connected = self.btaps.connect()
       if self.connected:
         if self.btaps.get_switch_state()[0]:
-          self.status = 2 # On
+          self.state = 2 # On
         else:
-          self.status = 1 # Off
+          self.state = 1 # Off
       else:
         print('WARNING: failed to connect to bt device:', self.hwId)
         # set these manually because i'm paranoid
         self.connected = False
-        self.status = 0 # unavailable
+        self.state = 0 # unavailable
     except:
       print('WARNING: failed to connect to bt device:', self.hwId)
       self.connected = False
-      self.status = 0 # unavailable
+      self.state = 0 # unavailable
     print('BtController hwId:', self.hwId, ', connected:', self.connected)
 
   def disconnect(self):
@@ -393,7 +393,7 @@ class BtController():
       self.btaps.disconnect()
       self.connected = False
       self.btaps = None
-      self.status = 0
+      self.state = 0
       # print('Disconnected from Bluetooth Device, hwId: ', self.hwId)
 
   def setState(self, action):
@@ -401,15 +401,15 @@ class BtController():
       return
     elif not self.connected:
       print('ERROR: cannot set device state, not connected: ', self.hwId)
-      self.status = 0
+      self.state = 0
       return
     else:
       if action == 1:
         self.btaps.set_switch(False) #turn device off
-        self.status = 1
+        self.state = 1
       elif action == 2:
         self.btaps.set_switch(True) #turn device on
-        self.status = 2
+        self.state = 2
 
 
 class SerialMessage():
