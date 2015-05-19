@@ -17,10 +17,17 @@ class SerialReader():
 				msg = SerialMessage(self.serialComm.readline().decode())
 
 				if (msg.msgType == MSG_TYPE_REG):
-					print('msg: ', msg.msgType, ', ', msg.wearableId, ', ', msg.zoneId, ', ', msg.signalStrength)
+					print("\n** Regular Message Received **")
+					print("   Wearable Id:     " + str(msg.wearableId))
+					print("   Zone Id:         " + str(msg.zoneId))
+					print("   Signal Strength: " + str(msg.signalStrength))
+					print("")
+					# print('msg: ', msg.msgType, ', ', msg.wearableId, ', ', msg.zoneId, ', ', msg.signalStrength)
 
-					if (self.systemState.systemIsPaused):
+					if (self.systemState.systemIsPaused or (not self.systemState.isKnownWearable(msg.wearableId))):
 						# if the system is paused, we throw out any msg besides "discovers"
+						# also throw out message from wearables that haven't been assigned (i.e. not "known")
+						print("THROWING OUT MESSAGE")
 						continue
 
 					zone = self.systemState.getHardwareObjectByHwId(TID_Z, msg.zoneId)
@@ -47,8 +54,14 @@ class SerialReader():
 						self.systemState.actionQ.put(actionMsg, True, None)
 
 				elif (msg.msgType == MSG_TYPE_DISC_W):
+					# print("\n** Wearable Discovery Message Received **")
+					# print("   Wearable Id:     " + str(msg.wearableId))
+					# print("")
 					self.systemState.wearableIds.add(msg.wearableId)
 				elif (msg.msgType == MSG_TYPE_DISC_Z):
+					print("\n** Zone Discovery Message Received **")
+					print("   Zone Id:     " + str(msg.zoneId))
+					print("")
 					self.systemState.zoneIds.add(msg.zoneId)
 				else:
 					print('Invalid Serial Message: ', msg)

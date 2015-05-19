@@ -194,6 +194,12 @@ class SystemState:
     return None
 
   def deleteHardwareObject(self, typeId, xmlId):
+    # if deleting zone, update all devices using that zone
+    if (typeId == TID_Z):
+      for device in dicts[TID_D].values():
+        if (device.zone == xmlId):
+          device.zone = -1
+
     del self.dicts[typeId][xmlId]
     if (self.nextIds[typeId] == xmlId + 1):
       self.nextIds[typeId] = xmlId
@@ -207,7 +213,6 @@ class SystemState:
       hwIdList = self.wearableIds.getCopyAsList() # *copy* the wearable ID list
     else:
       # TODO -- send back list of (Plugable) Bluetooth devices
-      print("ERROR: hardware discovery only valid for wearables and zones!")
       print('scanning for bluetooth devices')
       hwIdList = discover_devices(lookup_names=True)
       # hwIdList = near
@@ -231,6 +236,12 @@ class SystemState:
     self.systemIsPaused = pauseFlag
     while((not pauseFlag) in self.threadsPaused):
       time.sleep(0.25) # don't return until all threads have seen the pause command
+
+  def isKnownWearable(self, wearableId):
+    for wearable in self.dicts[TID_W].values():
+      if (wearable.hwId == wearableId):
+        return True
+    return False
     
 class LockedDict:
   def __init__(self):

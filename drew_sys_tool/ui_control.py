@@ -52,6 +52,8 @@ class UiControl:
             self.dialogUis[i].setupUi(self.dialogs[i])
 
         self.tables = [self.mainUi.tableWearable, self.mainUi.tableZone, self.mainUi.tableDevice, self.mainUi.tableConfig]
+        self.zoTable = self.mainUi.tableZoneOccupation
+        self.dsTable = self.mainUi.tableDeviceState
 
         self.buttonGroups = []
         self.buttonGroups.append([self.mainUi.buttonEditWearable, self.mainUi.buttonDeleteWearable, self.mainUi.buttonNewWearable])
@@ -192,17 +194,15 @@ class UiControl:
         self.pauseChangeDialog.hide()
 
     def statusRefresh(self):
-        zoTable = self.mainUi.tableZoneOccupation
         # update each row (zone) in zone occupation table
-        for row in range(zoTable.rowCount()):
-            items = [zoTable.item(row, 0), zoTable.item(row, 1)]
+        for row in range(self.zoTable.rowCount()):
+            items = [self.zoTable.item(row, 0), self.zoTable.item(row, 1)]
             zone = self.systemState.getHardwareObject(TID_Z, items[0].data(5))
             self.updateZoneOccupationTableRow(zone, items)
 
-        dsTable = self.mainUi.tableDeviceState
         # update each row (zone) in zone occupation table
-        for row in range(dsTable.rowCount()):
-            items = [dsTable.item(row, 0), dsTable.item(row, 1)]
+        for row in range(self.dsTable.rowCount()):
+            items = [self.dsTable.item(row, 0), self.dsTable.item(row, 1)]
             device = self.systemState.getHardwareObject(TID_D, items[0].data(5))
             self.updateDeviceStateTableRow(device, items)
 
@@ -257,7 +257,9 @@ class UiControl:
         else:
             device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_D])
         self.dialogUis[TID_D].inputName.setText(device.name)
+
         self.refreshDeviceDropdown()
+        
         self.dialogs[TID_D].show()
 
     def editConfig(self):
@@ -332,10 +334,9 @@ class UiControl:
         if (self.newFlag):
             self.updateZoneOccupationTableRow(zone)
         else:
-            zoTable = self.mainUi.tableZoneOccupation
-            for row in range(zoTable.rowCount()):
-                if (zoTable.item(row, 0).data(5) == zone.xmlId):
-                    items = [zoTable.item(row, 0), zoTable.item(row, 1)]
+            for row in range(self.zoTable.rowCount()):
+                if (self.zoTable.item(row, 0).data(5) == zone.xmlId):
+                    items = [self.zoTable.item(row, 0), self.zoTable.item(row, 1)]
                     self.updateZoneOccupationTableRow(zone, items)
                     break
 
@@ -371,13 +372,12 @@ class UiControl:
 
         # update device state table in status tab
         if (self.newFlag):
-            self.updateDeviceStateTableRow(zone)
+            self.updateDeviceStateTableRow(device)
         else:
-            dsTable = self.mainUi.tableDeviceState
-            for row in range(dsTable.rowCount()):
-                if (dsTable.item(row, 0).data(5) == device.xmlId):
-                    items = [dsTable.item(row, 0), dsTable.item(row, 1)]
-                    self.updateDeviceStateTableRow(zone, items)
+            for row in range(self.dsTable.rowCount()):
+                if (self.dsTable.item(row, 0).data(5) == device.xmlId):
+                    items = [self.dsTable.item(row, 0), self.dsTable.item(row, 1)]
+                    self.updateDeviceStateTableRow(device, items)
                     break
 
         if (not self.manuallyPaused):
@@ -403,13 +403,13 @@ class UiControl:
             self.beginPauseChange(RESUME, False)
         self.dialogs[TID_C].hide()
 
-    # TODO -- if zone is deleted, remove it from status tab table
-    # TODO -- if device is deleted, remove it from status tab table
     def deleteTableEntry(self, typeId):
-        # TODO -- handle (attempted) deletion of a zone used by device config(s)
+        # TODO -- confirmation pop-up; also warn if deleting one used by device config
+        xmlId = self.currXmlId[typeId]
         self.systemState.setSystemPause(PAUSE)
-        self.systemState.deleteHardwareObject(typeId, self.currXmlId[typeId])
+        self.systemState.deleteHardwareObject(typeId, xmlId)
         self.tables[typeId].removeRow(self.tables[typeId].currentRow())
+        self.removeFromStatusTable(typeId, xmlId)
         if (not self.manuallyPaused):
             self.beginPauseChange(RESUME, False)
 
@@ -429,6 +429,7 @@ class UiControl:
             self.currXmlId[tableIdx] = items[0].data(5)
         else:
             self.currXmlId[tableIdx] = -1
+        print("selection update: currXmlId[",tableIdx,"] is ",self.currXmlId[tableIdx])
         shouldEnable = ( len(self.tables[tableIdx].selectedIndexes()) != 0)
         buttons = self.buttonGroups[tableIdx]
         for i in range(2): # only update edit & delete buttons
@@ -648,8 +649,6 @@ class UiControl:
             self.updateZoneOccupationTableRow(zone)
 
     def updateZoneOccupationTableRow(self, zone, tableItems=None):
-        zoTable = self.mainUi.tableZoneOccupation
-
         if (tableItems == None):
             tableItems = []
             for i in range(2):
@@ -657,9 +656,9 @@ class UiControl:
                 item.setTextAlignment(ITEM_ALIGN_FLAGS)
                 item.setFlags(ITEM_INTERACT_FLAGS)
                 tableItems.append(item)
-            zoTable.insertRow(0)
-            zoTable.setItem(0, 0, tableItems[0])
-            zoTable.setItem(0, 1, tableItems[1])
+            self.zoTable.insertRow(0)
+            self.zoTable.setItem(0, 0, tableItems[0])
+            self.zoTable.setItem(0, 1, tableItems[1])
 
         tableItems[0].setText(zone.name)
         tableItems[0].setData(5, zone.xmlId)
@@ -686,8 +685,6 @@ class UiControl:
             self.updateDeviceStateTableRow(device)
 
     def updateDeviceStateTableRow(self, device, tableItems=None):
-        dsTable = self.mainUi.tableDeviceState
-
         if (tableItems == None):
             tableItems = []
             for i in range(2):
@@ -695,13 +692,27 @@ class UiControl:
                 item.setTextAlignment(ITEM_ALIGN_FLAGS)
                 item.setFlags(ITEM_INTERACT_FLAGS)
                 tableItems.append(item)
-            dsTable.insertRow(0)
-            dsTable.setItem(0, 0, tableItems[0])
-            dsTable.setItem(0, 1, tableItems[1])
+            self.dsTable.insertRow(0)
+            self.dsTable.setItem(0, 0, tableItems[0])
+            self.dsTable.setItem(0, 1, tableItems[1])
 
         tableItems[0].setText(device.name)
         tableItems[0].setData(5, device.xmlId)
         tableItems[1].setText(DEVICE_STATES[device.devType][device.state])
+
+    def removeFromStatusTable(self, typeId, xmlId):
+        if (typeId != TID_Z and typeId != TID_D):
+            return
+        else:
+            if (typeId == TID_Z):
+                table = self.zoTable
+            else: # typeId == TID_D
+                table = self.dsTable
+
+            for row in range(table.rowCount()):
+                if ((table.item(row, 0)).data(5) == xmlId):
+                    table.removeRow(row)
+
 
 class PauseChangeThread(QtCore.QThread):
     isDone = False
@@ -720,6 +731,24 @@ class PauseChangeThread(QtCore.QThread):
         self.systemState.setSystemPause(self.action)
         self.doneSignal.emit()
         self.isDone = True
+
+# class DropdownRefreshThread(QtCore.QThread):
+#     isDone = False
+#     doneSignal = QtCore.pyqtSignal()
+#     action = RESUME
+
+#     def __init__(self, systemState):
+#         super().__init__()
+#         self.systemState = systemState
+
+#     def setAction(self, action):
+#         self.action = action
+
+#     def run(self):
+#         self.isDone = False
+#         self.systemState.setSystemPause(self.action)
+#         self.doneSignal.emit()
+#         self.isDone = True
 
 class StatusRefreshThread(QtCore.QThread):
     refreshSignal = QtCore.pyqtSignal()
