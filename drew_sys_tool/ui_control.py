@@ -165,7 +165,7 @@ class UiControl:
 
     def beginPauseChange(self, desiredAction, isManualChange):
         if (desiredAction == self.systemState.systemIsPaused):
-            return False # system is already in the desired state
+            return # system is already in the desired state
 
         # manual changes are initiated by pressing the pause/resume button
         # automatic changes are initiated when editing any part of the system
@@ -186,8 +186,6 @@ class UiControl:
         self.pauseChangeThread.setAction(desiredAction)
         self.pauseChangeThread.start()
 
-        return True
-
     def finishPauseChange(self):
         if (self.systemState.systemIsPaused):
             doneText = "<b>System Paused</b>"
@@ -199,11 +197,11 @@ class UiControl:
         self.mainUi.buttonPause.setIcon(newIcon)
         self.mainUi.labelPauseStatus.setText(doneText)
 
+        self.pauseChangeGif.stop()
+        self.pauseChangeDialog.hide()
+
         if (self.doRefresh != -1):
             self.initiateDropdownRefresh(self.doRefresh)
-        else:
-            self.pauseChangeGif.stop()
-            self.pauseChangeDialog.hide()
 
         self.doRefresh = -1
 
@@ -244,11 +242,12 @@ class UiControl:
         self.dialogs[TID_W].show()
 
     def editZone(self, isNew):
-        self.doRefresh = TID_Z
-        retVal = self.beginPauseChange(PAUSE, False)
-        if (not retVal):
-            self.initiateDropdownRefresh(TID_Z)
+        if (not self.systemState.systemIsPaused):
+            self.doRefresh = TID_Z
+            self.beginPauseChange(PAUSE, False)
+        else:
             self.doRefresh = -1
+            self.initiateDropdownRefresh(TID_Z)
         self.dialogUis[TID_Z].labelInvalidName.setVisible(False)
         self.dialogUis[TID_Z].labelInvalidModule.setVisible(False)
         self.systemState.setSystemPause(PAUSE)
@@ -263,11 +262,12 @@ class UiControl:
         self.dialogs[TID_Z].show()
 
     def editDevice(self, isNew):
-        self.doRefresh = TID_D
-        retVal = self.beginPauseChange(PAUSE, False)
-        if (not retVal):
-            self.initiateDropdownRefresh(TID_D)
+        if (not self.systemState.systemIsPaused):
+            self.doRefresh = TID_D
+            self.beginPauseChange(PAUSE, False)
+        else:
             self.doRefresh = -1
+            self.initiateDropdownRefresh(TID_D)
         self.dialogUis[TID_D].labelInvalidName.setVisible(False)
         self.dialogUis[TID_D].labelInvalidDevice.setVisible(False)
         self.systemState.setSystemPause(PAUSE)
