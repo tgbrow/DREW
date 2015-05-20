@@ -196,7 +196,7 @@ class SystemState:
   def deleteHardwareObject(self, typeId, xmlId):
     # if deleting zone, update all devices using that zone
     if (typeId == TID_Z):
-      for device in dicts[TID_D].values():
+      for device in self.dicts[TID_D].values():
         if (device.zone == xmlId):
           device.zone = -1
 
@@ -212,11 +212,10 @@ class SystemState:
     elif (typeId == TID_W):
       hwIdList = self.wearableIds.getCopyAsList() # *copy* the wearable ID list
     else:
-      # TODO -- send back list of (Plugable) Bluetooth devices
       print('scanning for bluetooth devices')
       hwIdList = discover_devices(lookup_names=True)
-      # hwIdList = near
 
+    # TODO -- update this to properly filter the Bluetooth device tuples
     for hwItem in self.dicts[typeId].values():
         if hwItem.hwId in hwIdList:
           hwIdList.remove(hwItem.hwId)
@@ -456,5 +455,5 @@ class SignalData():
       self.sampleCount += 1
     self.avgStrength += (signalStrength - self.avgStrength) / self.sampleCount
     self.lastUpdate = time.time()
-    print('avgStrength: ', self.avgStrength)
+    # print('avgStrength: ', self.avgStrength)
     return self.avgStrength

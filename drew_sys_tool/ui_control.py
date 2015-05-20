@@ -29,9 +29,12 @@ class UiControl:
         self.pauseChangeDialogUi = Ui_PauseChangeDialog()
         self.pauseChangeDialogUi.setupUi(self.pauseChangeDialog)
         self.pauseChangeGif = QtGui.QMovie("./images/waiting.gif")
-        self.pauseChangeGif.setScaledSize(QtCore.QSize(130, 130))
+        self.pauseChangeGif.setScaledSize(QtCore.QSize(140, 140))
         self.pauseChangeDialogUi.labelGIF.setMovie(self.pauseChangeGif)
         self.pauseChangeThread = PauseChangeThread(self.systemState)
+
+        self.dropdownRefreshThread = DropdownRefreshThread(self.systemState)
+        self.doRefresh = -1
 
         self.statusRefreshThread1 = StatusRefreshThread()
         self.statusRefreshThread2 = StatusRefreshThread()
@@ -123,8 +126,8 @@ class UiControl:
 
         # dialog "Refresh List" buttons
         self.dialogUis[TID_W].buttonRefresh.clicked.connect(lambda: self.refreshWearableDropdown())
-        self.dialogUis[TID_Z].buttonRefresh.clicked.connect(lambda: self.refreshZoneModuleDropdown())
-        self.dialogUis[TID_D].buttonRefresh.clicked.connect(lambda: self.refreshDeviceDropdown())
+        self.dialogUis[TID_Z].buttonRefresh.clicked.connect(lambda: self.initiateDropdownRefresh(TID_Z))
+        self.dialogUis[TID_D].buttonRefresh.clicked.connect(lambda: self.initiateDropdownRefresh(TID_D))
 
         # enable/disable buttons when table selection changes, etc
         self.tables[TID_W].itemSelectionChanged.connect(lambda: self.selectionUpdate(TID_W))
@@ -135,6 +138,8 @@ class UiControl:
         # manual system pause/resume button
         self.mainUi.buttonPause.clicked.connect(lambda: self.beginPauseChange((not self.systemState.systemIsPaused), True))
         self.pauseChangeThread.doneSignal.connect(lambda: self.finishPauseChange())
+
+        self.dropdownRefreshThread.doneSignal.connect(lambda: self.finishDropdownRefresh())
 
         self.statusRefreshThread1.refreshSignal.connect(lambda: self.statusRefresh())
         self.statusRefreshThread2.refreshSignal.connect(lambda: self.statusRefresh())
@@ -158,7 +163,7 @@ class UiControl:
 
     def beginPauseChange(self, desiredAction, isManualChange):
         if (desiredAction == self.systemState.systemIsPaused):
-            return # system is already in the desired state
+            return False # system is already in the desired state
 
         # manual changes are initiated by pressing the pause/resume button
         # automatic changes are initiated when editing any part of the system
@@ -179,6 +184,8 @@ class UiControl:
         self.pauseChangeThread.setAction(desiredAction)
         self.pauseChangeThread.start()
 
+        return True
+
     def finishPauseChange(self):
         if (self.systemState.systemIsPaused):
             doneText = "<b>System Paused</b>"
@@ -190,8 +197,13 @@ class UiControl:
         self.mainUi.buttonPause.setIcon(newIcon)
         self.mainUi.labelPauseStatus.setText(doneText)
 
-        self.pauseChangeGif.stop()
-        self.pauseChangeDialog.hide()
+        if (self.doRefresh != -1):
+            self.initiateDropdownRefresh(self.doRefresh)
+        else:
+            self.pauseChangeGif.stop()
+            self.pauseChangeDialog.hide()
+
+        self.doRefresh = -1
 
     def statusRefresh(self):
         # update each row (zone) in zone occupation table
@@ -230,7 +242,11 @@ class UiControl:
         self.dialogs[TID_W].show()
 
     def editZone(self, isNew):
-        self.beginPauseChange(PAUSE, False)
+        self.doRefresh = TID_Z
+        retVal = self.beginPauseChange(PAUSE, False)
+        if (not retVal):
+            self.initiateDropdownRefresh(TID_Z)
+            self.doRefresh = -1
         self.dialogUis[TID_Z].labelInvalidName.setVisible(False)
         self.dialogUis[TID_Z].labelInvalidModule.setVisible(False)
         self.systemState.setSystemPause(PAUSE)
@@ -242,11 +258,14 @@ class UiControl:
             zone = self.systemState.getHardwareObject(TID_Z, self.currXmlId[TID_Z])
         self.dialogUis[TID_Z].inputName.setText(zone.name)
         self.dialogUis[TID_Z].spinnerThreshold.setValue(zone.threshold)
-        self.refreshZoneModuleDropdown()
         self.dialogs[TID_Z].show()
 
     def editDevice(self, isNew):
-        self.beginPauseChange(PAUSE, False)
+        self.doRefresh = TID_D
+        retVal = self.beginPauseChange(PAUSE, False)
+        if (not retVal):
+            self.initiateDropdownRefresh(TID_D)
+            self.doRefresh = -1
         self.dialogUis[TID_D].labelInvalidName.setVisible(False)
         self.dialogUis[TID_D].labelInvalidDevice.setVisible(False)
         self.systemState.setSystemPause(PAUSE)
@@ -257,9 +276,6 @@ class UiControl:
         else:
             device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_D])
         self.dialogUis[TID_D].inputName.setText(device.name)
-
-        self.refreshDeviceDropdown()
-        
         self.dialogs[TID_D].show()
 
     def editConfig(self):
@@ -429,7 +445,6 @@ class UiControl:
             self.currXmlId[tableIdx] = items[0].data(5)
         else:
             self.currXmlId[tableIdx] = -1
-        print("selection update: currXmlId[",tableIdx,"] is ",self.currXmlId[tableIdx])
         shouldEnable = ( len(self.tables[tableIdx].selectedIndexes()) != 0)
         buttons = self.buttonGroups[tableIdx]
         for i in range(2): # only update edit & delete buttons
@@ -450,8 +465,28 @@ class UiControl:
         elif (len(hwIdList) == 0):
             dropdown.addItem("[no unassigned wearables detected]", -1)
 
+    def initiateDropdownRefresh(self, typeId):
+        if (typeId == TID_Z):
+            titleText = "Searching for Zone Modules..."
+        else: # typeId = TID_D
+            titleText = "Searching for Devices..."
+        self.pauseChangeDialog.setWindowTitle(titleText)
+        self.dropdownRefreshThread.setTypeId(typeId)
+        self.dropdownRefreshThread.start()
+        self.pauseChangeGif.start()
+        self.pauseChangeDialog.show()
+
+    def finishDropdownRefresh(self):
+        if (self.dropdownRefreshThread.typeId == TID_Z):
+            self.refreshZoneModuleDropdown()
+        else: # typeId == TID_D
+            self.refreshDeviceDropdown()
+
+        self.pauseChangeGif.stop()
+        self.pauseChangeDialog.hide()
+
     def refreshZoneModuleDropdown(self):
-        hwIdList = self.systemState.discoverHardware(TID_Z)
+        hwIdList = self.dropdownRefreshThread.hwIdList
         dropdown = self.dialogUis[TID_Z].dropdownModule
         dropdown.clear()
 
@@ -466,7 +501,7 @@ class UiControl:
             dropdown.addItem("[no unassigned modules detected]", -1)
 
     def refreshDeviceDropdown(self):
-        hwIdList = self.systemState.discoverHardware(TID_D)
+        hwIdList = self.dropdownRefreshThread.hwIdList
         dropdown = self.dialogUis[TID_D].dropdownDevice
         dropdown.clear()
 
@@ -715,9 +750,9 @@ class UiControl:
 
 
 class PauseChangeThread(QtCore.QThread):
-    isDone = False
     doneSignal = QtCore.pyqtSignal()
     action = RESUME
+    isDone = False
 
     def __init__(self, systemState):
         super().__init__()
@@ -732,23 +767,21 @@ class PauseChangeThread(QtCore.QThread):
         self.doneSignal.emit()
         self.isDone = True
 
-# class DropdownRefreshThread(QtCore.QThread):
-#     isDone = False
-#     doneSignal = QtCore.pyqtSignal()
-#     action = RESUME
+class DropdownRefreshThread(QtCore.QThread):
+    doneSignal = QtCore.pyqtSignal()
+    typeId = -1
+    hwIdList = None
 
-#     def __init__(self, systemState):
-#         super().__init__()
-#         self.systemState = systemState
+    def __init__(self, systemState):
+        super().__init__()
+        self.systemState = systemState
 
-#     def setAction(self, action):
-#         self.action = action
+    def setTypeId(self, typeId):
+        self.typeId = typeId
 
-#     def run(self):
-#         self.isDone = False
-#         self.systemState.setSystemPause(self.action)
-#         self.doneSignal.emit()
-#         self.isDone = True
+    def run(self):
+        self.hwIdList = self.systemState.discoverHardware(self.typeId)
+        self.doneSignal.emit()
 
 class StatusRefreshThread(QtCore.QThread):
     refreshSignal = QtCore.pyqtSignal()
