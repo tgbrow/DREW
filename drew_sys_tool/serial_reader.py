@@ -1,8 +1,6 @@
-from drew_util import SerialMessage, SignalData
+from drew_util import SerialMessage, SignalData, SignalDataV2
 from constants import *
 import time
-
-# TODO -- throw out messages from wearables that aren't assigned in the system
 
 class SerialReader():
 	def __init__(self, systemState):
@@ -37,11 +35,21 @@ class SerialReader():
 					signalData = zone.wearablesInZone.get(msg.wearableId)
 
 					if (signalData != None): # wearable has been seen in zone recently
-						wasInZone = (signalData.sampleCount == MAX_SAMPLES) and (signalData.avgStrength > zone.threshold)
-						newAvgStrength = signalData.addSample(msg.signalStrength)
-						nowInZone = (signalData.sampleCount == MAX_SAMPLES) and (newAvgStrength > zone.threshold)
+						# --- version 1 ---
+						# wasInZone = (signalData.sampleCount == MAX_SAMPLES) and (signalData.avgStrength > zone.threshold)
+						# newAvgStrength = signalData.addSample(msg.signalStrength)
+						# nowInZone = (signalData.sampleCount == MAX_SAMPLES) and (newAvgStrength > zone.threshold)
+						
+						# --- version 2 ---
+						wasInZone = signalData.isInZone
+						nowInZone = signalData.addSample(msg.signalStrength)
 					else: # wearable has NOT been seen in zone recently
-						signalData = SignalData(msg.signalStrength)
+						# --- version 1 ---
+						# signalData = SignalData(msg.signalStrength)
+
+						# --- version 2 ---
+						signalData = SignalDataV2(msg.signalStrength, zone.threshold)
+
 						zone.wearablesInZone.add(msg.wearableId, signalData)
 
 					if (nowInZone != wasInZone): # wearable has entered or exited zone

@@ -8,6 +8,7 @@
 			<enter>2</enter>
 			<exit>1</exit>
 			<zId>0</zId>
+			<listName>Plugable</listName>
 		</device>
 	</devices>
 	<wearables>

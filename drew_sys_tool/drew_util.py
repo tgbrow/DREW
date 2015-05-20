@@ -19,7 +19,7 @@ class Zone():
     self.wearablesInZone = LockedDict() # note: keys are the wearable hwId, not xmlId
 
 class Device():
-  def __init__(self, name='default_device', xmlId=None, hwId=None, devType=0, enter=2, exit=1, zone=-1):
+  def __init__(self, name='default_device', xmlId=None, hwId=None, devType=0, enter=2, exit=1, zone=-1, listName="listName"):
     self.name = name
     self.xmlId = xmlId
     self.hwId = hwId
@@ -28,6 +28,7 @@ class Device():
     self.exit = exit
     self.zone = zone # note: this is the associated zone's XML ID
     self.state = 0 # default to unavailable
+    self.listName = listName
 
 class Wearable():
   def __init__(self, name='default_wearable', xmlId=None, hwId=None):
@@ -60,7 +61,8 @@ class XmlControl():
         enter = int(d.find('enter').text)
         exit = int(d.find('exit').text)
         zone = int(d.find('zId').text)
-        self.devices[xmlId] = Device(name, xmlId, hwId, devType, enter, exit, zone)
+        listName = d.find('listName').text
+        self.devices[xmlId] = Device(name, xmlId, hwId, devType, enter, exit, zone, listName)
 
     # parse data for zones
     self.zones = {}
@@ -104,6 +106,8 @@ class XmlControl():
       exit.text = str(d.exit)
       zId = ET.SubElement(device, 'zId')
       zId.text = str(d.zone)
+      listName = ET.SubElement(device, 'listName')
+      listName.text = str(d.listName)
 
     wearables = ET.SubElement(configuration, 'wearables')
     for w in self.wearables.values():
@@ -190,7 +194,6 @@ class SystemState:
     for hwObject in self.dicts[typeId].values():
       if (hwObject.hwId == hwId):
         return hwObject
-    # print("ERROR: hardward object with hwId ", hwId, " not found!")
     return None
 
   def deleteHardwareObject(self, typeId, xmlId):
@@ -213,13 +216,17 @@ class SystemState:
       hwIdList = self.wearableIds.getCopyAsList() # *copy* the wearable ID list
     else:
       print('scanning for bluetooth devices')
-      hwIdList = discover_devices(lookup_names=True)
+      hwTupleList = discover_devices(lookup_names=True)
 
-    # TODO -- update this to properly filter the Bluetooth device tuples
-    for hwItem in self.dicts[typeId].values():
-        if hwItem.hwId in hwIdList:
-          hwIdList.remove(hwItem.hwId)
-    return hwIdList
+    if (typeId == TID_D):
+      for hwItem in self.dicts[typeId].values():
+        hwTupleList = [(hwId, listName) for (hwId, listName) in hwTupleList if hwId != hwItem.hwId]
+      return hwTupleList
+    else:
+      for hwItem in self.dicts[typeId].values():
+          if hwItem.hwId in hwIdList:
+            hwIdList.remove(hwItem.hwId)
+      return hwIdList
 
   def nameInUse(self, typeId, givenName, currXmlId):
     givenName = givenName.lower()
@@ -444,6 +451,7 @@ class SerialMessage():
       self.signalStrength = None
 
 
+# averaging version
 class SignalData():
   def __init__(self, signalStrength, lastUpdate=None, sampleCount=1):
     self.avgStrength = signalStrength
@@ -457,3 +465,35 @@ class SignalData():
     self.lastUpdate = time.time()
     # print('avgStrength: ', self.avgStrength)
     return self.avgStrength
+
+# three samples to change version
+class SignalDataV2():
+  def __init__(self, signalStrength, zoneThreshold):
+    self.zoneThreshold = zoneThreshold
+    self.lastUpdate = time.time()
+    self.samples = [signalStrength]
+    self.sampleCount = 1
+    self.currIndex = 0
+    self.isInZone = False
+
+  def addSample(self, signalStrength):
+    self.lastUpdate = time.time()
+
+    if (self.sampleCount < MAX_SAMPLES):
+      # add sample to list
+      self.samples.append(signalStrength > self.zoneThreshold)
+      self.sampleCount += 1
+    else:
+      # overwirte oldest sample
+      self.samples[self.currIndex] = (signalStrength > self.zoneThreshold)
+      self.currIndex = (self.currIndex + 1) % MAX_SAMPLES
+
+    if (self.sampleCount == MAX_SAMPLES):
+      # only change zone occupation status if the
+      # last MAX_SAMPLES samples are all the same
+      if (False not in self.samples):
+        self.isInZone = True
+      elif (True not in self.samples):
+        self.isInZone = False
+
+    return self.isInZone

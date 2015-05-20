@@ -9,7 +9,9 @@ from ui_pausechangedialog import Ui_PauseChangeDialog
 from drew_util import *
 from constants import *
 
-# TODO -- "Discovering..." with waiting GIF on dropdown refresh
+# TODO -- The "Searching for Devices..." dialog doesn't seem to be top-level modal.
+#         I was able to edit device name "underneath" the "searching" dialog.
+#         The dialog also doesn't display GIF when pausing for device or zone edits...
 
 class UiControl:
     def __init__(self, systemState):
@@ -371,7 +373,7 @@ class UiControl:
             self.dialogUis[TID_D].labelInvalidName.setVisible(False)
         
         # disallow invalid hardware IDs
-        selectedHwId = self.dialogUis[TID_D].dropdownDevice.currentData()
+        (selectedHwId, selectedListName) = self.dialogUis[TID_D].dropdownDevice.currentData()
         if (selectedHwId == 'INVALID'):
             self.dialogUis[TID_D].labelInvalidDevice.setVisible(True)
             return
@@ -382,6 +384,7 @@ class UiControl:
         device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_D])
         device.name = givenName
         device.hwId = selectedHwId
+        device.listName = selectedListName
         device.devType = self.dialogUis[TID_D].dropdownType.currentData()
         self.updateDeviceTable(device, self.newFlag)
         self.selectionUpdate(TID_D)
@@ -501,19 +504,19 @@ class UiControl:
             dropdown.addItem("[no unassigned modules detected]", -1)
 
     def refreshDeviceDropdown(self):
-        hwIdList = self.dropdownRefreshThread.hwIdList
+        hwTupleList = self.dropdownRefreshThread.hwIdList
         dropdown = self.dialogUis[TID_D].dropdownDevice
         dropdown.clear()
 
-        for hwId, name in hwIdList:
-            dropdown.addItem(hwId + " - " + name, hwId)
+        for (hwId, listName) in hwTupleList:
+            dropdown.addItem(hwId + " - " + listName, (hwId, listName))
 
         # add and select current hwId if editing existing zone
         if (not self.newFlag):
             device = self.systemState.getHardwareObject(TID_D, self.currXmlId[TID_D])
-            dropdown.insertItem(0, str(device.hwId), device.hwId)
+            dropdown.insertItem(0, device.hwId + " - " + device.listName, (device.hwId, device.listName))
             dropdown.setCurrentIndex(0)
-        elif (len(hwIdList) == 0):
+        elif (len(hwTupleList) == 0):
             dropdown.addItem("[no unassigned devices detected]", 'INVALID')
 
     def populateConfigDropdowns(self, device):
