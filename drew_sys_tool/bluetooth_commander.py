@@ -1,12 +1,12 @@
 from drew_util import *
 import time
 
+DEBUG_BTCMD = True
+
 class BluetoothCommander:
 	def __init__(self, systemState):
 		self.systemState = systemState
 		self.controllers = {}
-		# physically connect the controllers --> do this here or beginning of run?
-		self.connect()
 
 	def connect(self):
 		for device in self.systemState.dicts[TID_D].values():
@@ -15,8 +15,10 @@ class BluetoothCommander:
 			device.state = self.controllers[device.hwId].state
 
 	def run(self):
-		# do this here? or in constructor?
+		# connect or checkDeviceCreation?
 		# self.connect()
+		self.checkDeviceCreation()
+
 		while not self.systemState.stop:
 			if self.systemState.systemIsPaused:
 
@@ -55,7 +57,7 @@ class BluetoothCommander:
 					self.controllers[device.hwId].setState(device.exit if action == DIR_EXIT else device.enter)
 					device.state = self.controllers[device.hwId].state
 		except:
-			print('ERROR: BluetoothCommander could not understand battle plans, WE SHOULD NEVER SEE THIS EXCEPTION ANYMORE')
+			print('ERROR: BluetoothCommander could not understand workItem, WE SHOULD NEVER SEE THIS EXCEPTION ANYMORE')
 
 
 	def resume(self):
@@ -63,46 +65,89 @@ class BluetoothCommander:
 		# 1: attempt to connect to any previously unavailable devices
 		# 2: check all devices state with the state it should be in
 		# 4: disconnect from any devices that were removed during pause
+		# create new controllers for any device that was just added
 		
-		print('BTCMD: resuming...')
+		if DEBUG_BTCMD: print('BTCMD: resuming...')
+		self.checkDeviceDeletion()
+		self.checkDeviceCreation()
+		self.attemptReconnect()
+		self.checkDeviceState()
 
-		discardList = []
 
-		print('BTCMD: checking for removed devices')
-		# check for devices that were removed during pause
-		for controlHwId in self.controllers:
-			device = self.systemState.getHardwareObjectByHwId(TID_D, controlHwId)
+	def checkDeviceDeletion(self):
+		if DEBUG_BTCMD: print('BTCMD: checking for a device deletion')
+		discardList = [] # list of controllers to be discarded
+		for controller in self.controllers.values():
+			device = self.systemState.getHardwareObjectByHwId(TID_D, controller.hwId)
 			if device == None:
-				# device is not in system state
-				print('BTCMD: found a device to remove')
-				discardList.append(controlHwId)
-				# continue?
+				# device must have been deleted
+				if DEBUG_BTCMD: print('\tBTCMD: found a device to remove with hwId ', controller.hwId)
+				discardList.append(controller)
+		for item in discardList:
+			if DEBUG_BTCMD: print('\tBTCMD: removing controller with hwId ', item.hwId)
+			item.disconnect()
+			del self.controllers[item.hwId]
 
-		print('BTCMD: checking all device state')
-		# check that all devices are in the correct state
-		for device in self.systemState.dicts[TID_D].values():
-			zone = self.systemState.dicts[TID_Z].get(device.zone)
+
+	# Checks all the devices that are currently in the controllers list. will skip controllers that are not connected
+	# Should call all other methods that try to ensure connectivity before calling this --> mainly deletions
+	def checkDeviceState(self):
+		if DEBUG_BTCMD: print('BTCMD: checking intended device state against actual state')
+
+		for controller in self.controllers.values():
+			if not controller.connected:
+				continue
+			device = self.systemState.getHardwareObjectByHwId(TID_D, controller.hwId)
+			device.state = controller.getState() # update the device state regardless
+			zone = self.systemState.dicts[TID_Z].get(device.zone) #device.zone --> zone's xmlId
+			if zone == None:
+				continue #zone does not exist, most likely device is not connected to one
 			numInZone = len(zone.wearablesInZone.keys())
 			if numInZone > 0:
-				# take the 'enter action'
-				# self.controllers[device.hwId].setState(device.enter)
-				action = device.enter
+				intendedState = device.enter #some wearable in zone
 			else:
-				# take the 'exit action'
-				# self.controllers[device.hwId].setState(device.exit)
-				action = device.exit
-			# self.controllers[device.hwId].setState(action)
+				intendedState = device.exit #no wearables in zone
+			if intendedState != 0 and intendedState != controller.state: # no need to get state, already did that recently
+				controller.setState(intendedState)
+				device.state = controller.state
 
-			control = self.controllers[device.hwId]
-			if device.state != control.state:
-				# mismatch, fix it
-				print('BTCMD: found a device state mismatch')
-				control.setState(action)
+		# for device in self.systemState.dicts[TID_D].values():
+		# 	zone = self.systemState.dicts[TID_Z].get(device.zone) #device.zone --> zone's xmlId
 
-		print('BTCMD: attempting reconnect')
-		# attempt to connect to any previously disconnected/unavailable devices
-		for control in self.controllers.values():
-			if not control.connected:
-				print('BTCMD: found a disconnected device')
-				control.connect()
+		# 	if zone == None:
+		# 		continue # zone does not exist, most likely device is not assigned to a zone
 
+		# 	# determine the state the device should be in
+		# 	numInZone = len(zone.wearablesInZone.keys())
+		# 	if numInZone > 0:
+		# 		# some wearable is in zone, state should be the 'enter' action
+		# 		state = device.enter
+		# 	else:
+		# 		# no wearables in zone, state should be the 'exit' action
+		# 		state = device.exit			
+
+		# 	controller = self.controllers.get(device.hwId)
+		# 	if controller == None:
+		# 		if DEBUG_BTCMD: print('\tBTCMD: somehow got a controller of None. device not in controllers?')
+		# 	elif state != controller.getState():
+		# 		if DEBUG_BTCMD: print('\tBTCMD: found a device state mismatch')
+		# 		controller.setState(state) # device should hold the correct state for device
+		# 	device.state = controller.state
+
+	def attemptReconnect(self):
+		if DEBUG_BTCMD: print('BTCMD: attempting to connect to previously unavailable devices')
+		for controller in self.controllers.values():
+			if not controller.connected:
+				if DEBUG_BTCMD: print('\tBTCMD: found a disconnected device, attempting reconnect...')
+				controller.connect()
+				if DEBUG_BTCMD: print('\tBTCMD: connection status after attempt ', controller.connected)
+
+	def checkDeviceCreation(self):
+		if DEBUG_BTCMD: print('BTCMD: checking for a any device creation')
+		for device in self.systemState.dicts[TID_D].values():
+			controller = self.controllers.get(device.hwId)
+			if controller == None:
+				# device has been added, but there is not controller yet
+				self.controllers[device.hwId] = BtController(device.hwId)
+				self.controllers[device.hwId].connect()
+				device.state = self.controllers[device.hwId].state

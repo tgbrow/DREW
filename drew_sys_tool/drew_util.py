@@ -392,16 +392,7 @@ class BtController():
       try:
         self.btaps = libbtaps.BTaps(self.hwId)
         self.connected = self.btaps.connect()
-        if self.connected:
-          if self.btaps.get_switch_state()[0]:
-            self.state = 2 # On
-          else:
-            self.state = 1 # Off
-        else:
-          print('WARNING: failed to connect to bt device:', self.hwId)
-          # set these manually because i'm paranoid
-          self.connected = False
-          self.state = 0 # unavailable
+        self.getState()
       except:
         print('WARNING: failed to connect to bt device:', self.hwId)
         self.connected = False
@@ -431,6 +422,15 @@ class BtController():
       elif action == 2:
         self.btaps.set_switch(True) #turn device on
         self.state = 2
+
+  def getState(self):
+    if not self.connected:
+      self.state = 0 #unavailable
+    elif self.btaps.get_switch_state()[0]:
+      self.state = 2 #device is on
+    else:
+      self.state = 1 #device is off
+    return self.state
 
 
 class SerialMessage():
