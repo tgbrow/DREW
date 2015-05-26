@@ -17,5 +17,5 @@ Make sure you use the exact 32-bit installers given here!
 [05] pySerial 2.7 for Python 3.4 (32-bit)
      https://pypi.python.org/packages/any/p/pyserial/pyserial-2.7.win32_py3k.exe#md5=c6fb580ae7763671297794b8a1d91c9e
 	 
-	 
-Also need to install the Arduino IDE installed (since doing so will install the Arduino Leonardo driver needed for communication with out USB module).
+[06] Teensyduino 1.23
+     https://www.pjrc.com/teensy/td_123/teensyduino.exe

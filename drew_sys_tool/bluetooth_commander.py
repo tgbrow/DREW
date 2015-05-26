@@ -39,7 +39,7 @@ class BluetoothCommander:
 
 				self.systemState.threadsPaused[THREAD_BT] = False
 				if not self.systemState.actionQ.empty():
-					performAction()
+					self.performAction()
 
 
 	def performAction(self):

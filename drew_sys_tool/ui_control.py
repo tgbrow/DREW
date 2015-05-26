@@ -6,6 +6,7 @@ from ui_zonedialog import Ui_ZoneDialog
 from ui_devicedialog import Ui_DeviceDialog
 from ui_configdialog import Ui_ConfigDialog
 from ui_pausechangedialog import Ui_PauseChangeDialog
+from ui_confirmdialog import Ui_ConfirmDialog
 from drew_util import *
 from constants import *
 
@@ -40,7 +41,13 @@ class UiControl:
 
         self.statusRefreshThread1 = StatusRefreshThread()
         self.statusRefreshThread2 = StatusRefreshThread()
-        self.statuRefreshThreadSelect = False 
+        self.statuRefreshThreadSelect = False
+
+        self.delTypeId = -1
+        self.confirmDialog = QDialog()
+        self.confirmDialog.setWindowFlags(QtCore.Qt.CustomizeWindowHint|QtCore.Qt.WindowTitleHint)
+        self.confirmDialogUi = Ui_ConfirmDialog()
+        self.confirmDialogUi.setupUi(self.confirmDialog)
 
         self.dialogs = []
         for i in range(NUM_DIALOGS):
@@ -109,10 +116,14 @@ class UiControl:
         self.mainUi.buttonEditConfig.clicked.connect(lambda: self.editConfig())
 
         # "Delete" buttons
-        self.mainUi.buttonDeleteWearable.clicked.connect(lambda: self.deleteTableEntry(TID_W))
-        self.mainUi.buttonDeleteZone.clicked.connect(lambda: self.deleteTableEntry(TID_Z))
-        self.mainUi.buttonDeleteDevice.clicked.connect(lambda: self.deleteTableEntry(TID_D))
+        self.mainUi.buttonDeleteWearable.clicked.connect(lambda: self.confirmDeletion(TID_W))
+        self.mainUi.buttonDeleteZone.clicked.connect(lambda: self.confirmDeletion(TID_Z))
+        self.mainUi.buttonDeleteDevice.clicked.connect(lambda: self.confirmDeletion(TID_D))
         self.mainUi.buttonClearConfig.clicked.connect(lambda: self.clearConfig())
+
+        # deletion confirmation buttons
+        self.confirmDialogUi.buttonNo.clicked.connect(lambda: self.confirmDialog.hide())
+        self.confirmDialogUi.buttonYes.clicked.connect(lambda: self.deleteTableEntry(self.delTypeId))
 
         # dialog "Cancel" buttons
         self.dialogUis[TID_W].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_W))
@@ -422,13 +433,21 @@ class UiControl:
             self.beginPauseChange(RESUME, False)
         self.dialogs[TID_C].hide()
 
+    def confirmDeletion(self, typeId):
+        self.delTypeId = typeId
+        hwObj = self.systemState.getHardwareObjectByXmlId(typeId, self.currXmlId[typeId])
+        text = DEL_STR + HW_STR_DICT[typeId] + " \"" + hwObj.name + "\"?"
+        self.confirmDialogUi.labelAreYouSure.setText(text)
+        self.confirmDialogUi.labelWarning.setVisible(typeId == TID_Z)
+        self.confirmDialog.show()
+
     def deleteTableEntry(self, typeId):
-        # TODO -- confirmation pop-up; also warn if deleting one used by device config
         xmlId = self.currXmlId[typeId]
         self.systemState.setSystemPause(PAUSE)
         self.systemState.deleteHardwareObject(typeId, xmlId)
         self.tables[typeId].removeRow(self.tables[typeId].currentRow())
         self.removeFromStatusTable(typeId, xmlId)
+        self.confirmDialog.hide()
         if (not self.manuallyPaused):
             self.beginPauseChange(RESUME, False)
 
@@ -750,6 +769,7 @@ class UiControl:
             for row in range(table.rowCount()):
                 if ((table.item(row, 0)).data(5) == xmlId):
                     table.removeRow(row)
+                    return
 
 
 class PauseChangeThread(QtCore.QThread):
