@@ -372,24 +372,26 @@ class BtController():
 
   def connect(self):
     # connect to a the given bluetooth device
-    try:
-      self.btaps = libbtaps.BTaps(self.hwId)
-      self.connected = self.btaps.connect()
-      if self.connected:
-        if self.btaps.get_switch_state()[0]:
-          self.state = 2 # On
+    if not self.connected:
+      try:
+        self.btaps = libbtaps.BTaps(self.hwId)
+        self.connected = self.btaps.connect()
+        if self.connected:
+          if self.btaps.get_switch_state()[0]:
+            self.state = 2 # On
+          else:
+            self.state = 1 # Off
         else:
-          self.state = 1 # Off
-      else:
+          print('WARNING: failed to connect to bt device:', self.hwId)
+          # set these manually because i'm paranoid
+          self.connected = False
+          self.state = 0 # unavailable
+      except:
         print('WARNING: failed to connect to bt device:', self.hwId)
-        # set these manually because i'm paranoid
         self.connected = False
         self.state = 0 # unavailable
-    except:
-      print('WARNING: failed to connect to bt device:', self.hwId)
-      self.connected = False
-      self.state = 0 # unavailable
-    print('BtController hwId:', self.hwId, ', connected:', self.connected)
+      print('BtController hwId:', self.hwId, ', connected:', self.connected)
+    return self.connected
 
   def disconnect(self):
     if self.btaps != None:
