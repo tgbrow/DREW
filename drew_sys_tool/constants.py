@@ -6,6 +6,9 @@ TID_Z = 1 # zone
 TID_D = 2 # (connected) device
 TID_C = 3 # (device) configuration
 
+# map typeId to strings for hardware objects
+HW_STR_DICT = {TID_W:"wearable", TID_Z:"zone", TID_D:"device"}
+
 # tab indexes
 TAB_STAT = 0 # status
 TAB_HW   = 1 # hardware setup
@@ -56,3 +59,6 @@ MAX_SAMPLES = 3
 # sets alignment for text of entries in tables
 ITEM_ALIGN_FLAGS = QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter
 ITEM_INTERACT_FLAGS = QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
+
+# deletion confrim text
+DEL_STR = "Are you sure you want to delete "

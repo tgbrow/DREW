@@ -17,5 +17,10 @@ Make sure you use the exact 32-bit installers given here!
 [05] pySerial 2.7 for Python 3.4 (32-bit)
      https://pypi.python.org/packages/any/p/pyserial/pyserial-2.7.win32_py3k.exe#md5=c6fb580ae7763671297794b8a1d91c9e
 	 
-	 
-Also need to install the Arduino IDE installed (since doing so will install the Arduino Leonardo driver needed for communication with out USB module).
+[06] Teensyduino 1.23
+     https://www.pjrc.com/teensy/td_123/teensyduino.exe
+     
+For the D.R.E.W. Device Emulator, make sure you also have the following in addition to the PyBluez library above.
+
+[01] Pillow 2.8.1 for Python 3.4 (32-bit)
+     https://pypi.python.org/packages/3.4/P/Pillow/Pillow-2.8.1.win32-py3.4.exe#md5=9483c7ef042585f423457d25f77b5072

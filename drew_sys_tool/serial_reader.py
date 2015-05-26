@@ -1,8 +1,6 @@
-from drew_util import SerialMessage, SignalData
+from drew_util import SerialMessage, SignalData, SignalDataV2
 from constants import *
 import time
-
-# TODO -- throw out messages from wearables that aren't assigned in the system
 
 class SerialReader():
 	def __init__(self, systemState):
@@ -17,10 +15,15 @@ class SerialReader():
 				msg = SerialMessage(self.serialComm.readline().decode())
 
 				if (msg.msgType == MSG_TYPE_REG):
-					print('msg: ', msg.msgType, ', ', msg.wearableId, ', ', msg.zoneId, ', ', msg.signalStrength)
+					print("\n** Regular Message Received **")
+					print("   Wearable Id:     " + str(msg.wearableId))
+					print("   Zone Id:         " + str(msg.zoneId))
+					print("   Signal Strength: " + str(msg.signalStrength))
+					print("")
 
-					if (self.systemState.systemIsPaused):
+					if (self.systemState.systemIsPaused or (not self.systemState.isKnownWearable(msg.wearableId))):
 						# if the system is paused, we throw out any msg besides "discovers"
+						# also throw out message from wearables that haven't been assigned (i.e. not "known")
 						continue
 
 					zone = self.systemState.getHardwareObjectByHwId(TID_Z, msg.zoneId)
@@ -32,11 +35,21 @@ class SerialReader():
 					signalData = zone.wearablesInZone.get(msg.wearableId)
 
 					if (signalData != None): # wearable has been seen in zone recently
-						wasInZone = (signalData.sampleCount == MAX_SAMPLES) and (signalData.avgStrength > zone.threshold)
-						newAvgStrength = signalData.addSample(msg.signalStrength)
-						nowInZone = (signalData.sampleCount == MAX_SAMPLES) and (newAvgStrength > zone.threshold)
+						# --- version 1 ---
+						# wasInZone = (signalData.sampleCount == MAX_SAMPLES) and (signalData.avgStrength > zone.threshold)
+						# newAvgStrength = signalData.addSample(msg.signalStrength)
+						# nowInZone = (signalData.sampleCount == MAX_SAMPLES) and (newAvgStrength > zone.threshold)
+						
+						# --- version 2 ---
+						wasInZone = signalData.isInZone
+						nowInZone = signalData.addSample(msg.signalStrength)
 					else: # wearable has NOT been seen in zone recently
-						signalData = SignalData(msg.signalStrength)
+						# --- version 1 ---
+						# signalData = SignalData(msg.signalStrength)
+
+						# --- version 2 ---
+						signalData = SignalDataV2(msg.signalStrength, zone.threshold)
+
 						zone.wearablesInZone.add(msg.wearableId, signalData)
 
 					if (nowInZone != wasInZone): # wearable has entered or exited zone
@@ -47,8 +60,14 @@ class SerialReader():
 						self.systemState.actionQ.put(actionMsg, True, None)
 
 				elif (msg.msgType == MSG_TYPE_DISC_W):
+					# print("\n** Wearable Discovery Message Received **")
+					# print("   Wearable Id:     " + str(msg.wearableId))
+					# print("")
 					self.systemState.wearableIds.add(msg.wearableId)
 				elif (msg.msgType == MSG_TYPE_DISC_Z):
+					print("\n** Zone Discovery Message Received **")
+					print("   Zone Id:     " + str(msg.zoneId))
+					print("")
 					self.systemState.zoneIds.add(msg.zoneId)
 				else:
 					print('Invalid Serial Message: ', msg)
