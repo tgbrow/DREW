@@ -214,7 +214,7 @@ class SystemState:
     elif (typeId == TID_W):
       hwIdList = self.wearableIds.getCopyAsList() # *copy* the wearable ID list
     else:
-      print('scanning for bluetooth devices')
+      # scan for bluetooth devices
       hwTupleList = discover_devices(lookup_names=True)
 
     if (typeId == TID_D):
@@ -362,19 +362,6 @@ class LockedSet:
       self.lock.release()
     return listCopy
 
-  def updateTuple(self, item):
-    print("updating...")
-    try:
-      self.lock.acquire()
-      for theTuple in self.set:
-          if theTuple[0] == item:
-            self.set.discard(theTuple)
-            break
-      self.set.add((item, time.time()))
-    finally:
-      self.lock.release()
-    print("updating done")
-
 
 # Class that controls bluetooth plugable devices
 # connect and disconnect functions don't necessarily need to be public
@@ -397,7 +384,7 @@ class BtController():
         print('WARNING: failed to connect to bt device:', self.hwId)
         self.connected = False
         self.state = 0 # unavailable
-      print('BtController hwId:', self.hwId, ', connected:', self.connected)
+      # print('BtController hwId:', self.hwId, ', connected:', self.connected)
     return self.connected
 
   def disconnect(self):
@@ -464,7 +451,6 @@ class SignalData():
       self.sampleCount += 1
     self.avgStrength += (signalStrength - self.avgStrength) / self.sampleCount
     self.lastUpdate = time.time()
-    # print('avgStrength: ', self.avgStrength)
     return self.avgStrength
 
 # three samples to change version

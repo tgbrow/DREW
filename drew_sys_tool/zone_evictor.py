@@ -21,11 +21,11 @@ class ZoneEvictor():
 					try:
 						for wearableId, signalData in zone.wearablesInZone.items():
 							if (currTime - signalData.lastUpdate > EVICT_TIME):
-								print('time dif: ', currTime - signalData.lastUpdate)
+								# print('time dif: ', currTime - signalData.lastUpdate)
 								zone.wearablesInZone.discard(wearableId)
 								self.systemState.actionQ.put((zone, DIR_EXIT), True, None)
 					except:
-						print('Wearable left zone while ZoneEvictor checking that zone.')
+						# print('Wearable left zone while ZoneEvictor checking that zone.')
 						continue
 					
 				time.sleep(2.5)

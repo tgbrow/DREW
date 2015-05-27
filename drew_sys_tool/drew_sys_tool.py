@@ -15,28 +15,28 @@ if (len(sys.argv) > 1):
 systemState = SystemState("config_test.xml", comPort)
 
 # first start BluetoothCommander
-print('starting commander')
+print('\nstarting commander...')
 commander = BluetoothCommander(systemState)
 btThread = Thread(target=commander.run, args=())
 btThread.start()
-print('started commander')
+print('commander online\n')
 
 # then start ZoneEvictor
-print('starting evictor')
+print('starting evictor...')
 evictor = ZoneEvictor(systemState)
 evictThread = Thread(target=evictor.run, args=())
 evictThread.start()
-print('started evictor')
+print('evictor online\n')
 
 # and then start SerialReader
-print('starting serReader')
+print('starting serial reader...')
 serReader = SerialReader(systemState)
 serialThread = Thread(target=serReader.run, args=())
 serialThread.start()
-print('started serReader')
+print('serial reader online\n')
 
 # set up GUI application
-print('launching GUI')
+print('starting GUI...\n')
 app = QApplication(sys.argv)
 uiControl = UiControl(systemState)
 app.exec_() # blocks until application is closed
@@ -49,7 +49,7 @@ btThread.join()
 evictThread.join()
 serialThread.join()
 
-print("system stopped") # debug
+print("system stopped\n") # debug
 
 systemState.xml.save()
 

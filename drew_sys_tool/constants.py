@@ -62,3 +62,8 @@ ITEM_INTERACT_FLAGS = QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled
 
 # deletion confrim text
 DEL_STR = "Are you sure you want to delete "
+
+# tasks IDs
+TASK_NONE = 0
+TASK_CLEAR_CONFIG = 1
+TASK_DELETE_TABLE_ENTRY = 2

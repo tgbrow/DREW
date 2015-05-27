@@ -15,11 +15,6 @@ class SerialReader():
 				msg = SerialMessage(self.serialComm.readline().decode())
 
 				if (msg.msgType == MSG_TYPE_REG):
-					print("\n** Regular Message Received **")
-					print("   Wearable Id:     " + str(msg.wearableId))
-					print("   Zone Id:         " + str(msg.zoneId))
-					print("   Signal Strength: " + str(msg.signalStrength))
-					print("")
 
 					if (self.systemState.systemIsPaused or (not self.systemState.isKnownWearable(msg.wearableId))):
 						# if the system is paused, we throw out any msg besides "discovers"
@@ -28,7 +23,13 @@ class SerialReader():
 
 					zone = self.systemState.getHardwareObjectByHwId(TID_Z, msg.zoneId)
 					if (zone == None):
-						continue
+						continue # zone not assigned (i.e. not "known") -- throw out message
+
+					print("\n** Regular Message Received **")
+					print("   Wearable Id:     " + str(msg.wearableId))
+					print("   Zone Id:         " + str(msg.zoneId))
+					print("   Signal Strength: " + str(msg.signalStrength))
+					print("")
 
 					wasInZone = False
 					nowInZone = False

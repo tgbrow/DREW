@@ -1,7 +1,7 @@
 from drew_util import *
 import time
 
-DEBUG_BTCMD = True
+DEBUG_BTCMD = False
 
 class BluetoothCommander:
 	def __init__(self, systemState):

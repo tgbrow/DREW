@@ -10,14 +10,11 @@ from ui_confirmdialog import Ui_ConfirmDialog
 from drew_util import *
 from constants import *
 
-# TODO -- The "Searching for Devices..." dialog doesn't seem to be top-level modal.
-#         I was able to edit device name "underneath" the "searching" dialog.
-#         The dialog also doesn't display GIF when pausing for device or zone edits...
-
 class UiControl:
     def __init__(self, systemState):
         self.systemState = systemState
         self.currXmlId = [-1, -1, -1, -1]
+        self.afterPauseTask = TASK_NONE
 
         self.iconPause = QtGui.QIcon("./images/pause.png")
         self.iconActivate = QtGui.QIcon("./images/play.png")
@@ -35,6 +32,7 @@ class UiControl:
         self.pauseChangeGif.setScaledSize(QtCore.QSize(140, 140))
         self.pauseChangeDialogUi.labelGIF.setMovie(self.pauseChangeGif)
         self.pauseChangeThread = PauseChangeThread(self.systemState)
+        self.showWhenPauseDone = None
 
         self.dropdownRefreshThread = DropdownRefreshThread(self.systemState)
         self.doRefresh = -1
@@ -119,11 +117,11 @@ class UiControl:
         self.mainUi.buttonDeleteWearable.clicked.connect(lambda: self.confirmDeletion(TID_W))
         self.mainUi.buttonDeleteZone.clicked.connect(lambda: self.confirmDeletion(TID_Z))
         self.mainUi.buttonDeleteDevice.clicked.connect(lambda: self.confirmDeletion(TID_D))
-        self.mainUi.buttonClearConfig.clicked.connect(lambda: self.clearConfig())
+        self.mainUi.buttonClearConfig.clicked.connect(lambda: self.beginTaskWithPause(TASK_CLEAR_CONFIG))
 
         # deletion confirmation buttons
         self.confirmDialogUi.buttonNo.clicked.connect(lambda: self.confirmDialog.hide())
-        self.confirmDialogUi.buttonYes.clicked.connect(lambda: self.deleteTableEntry(self.delTypeId))
+        self.confirmDialogUi.buttonYes.clicked.connect(lambda: self.beginTaskWithPause(TASK_DELETE_TABLE_ENTRY))
 
         # dialog "Cancel" buttons
         self.dialogUis[TID_W].buttonCancel.clicked.connect(lambda: self.cancelHardwareDialog(TID_W))
@@ -176,7 +174,7 @@ class UiControl:
 
     def beginPauseChange(self, desiredAction, isManualChange):
         if (desiredAction == self.systemState.systemIsPaused):
-            return # system is already in the desired state
+            return False # system is already in the desired state
 
         # manual changes are initiated by pressing the pause/resume button
         # automatic changes are initiated when editing any part of the system
@@ -197,6 +195,8 @@ class UiControl:
         self.pauseChangeThread.setAction(desiredAction)
         self.pauseChangeThread.start()
 
+        return True
+
     def finishPauseChange(self):
         if (self.systemState.systemIsPaused):
             doneText = "<b>System Paused</b>"
@@ -211,10 +211,16 @@ class UiControl:
         self.pauseChangeGif.stop()
         self.pauseChangeDialog.hide()
 
+        if (self.showWhenPauseDone != None):
+            self.showWhenPauseDone.show()
+            self.showWhenPauseDone = None
+
         if (self.doRefresh != -1):
             self.initiateDropdownRefresh(self.doRefresh)
 
         self.doRefresh = -1
+
+        self.executeTask()
 
     def statusRefresh(self):
         # update each row (zone) in zone occupation table
@@ -239,6 +245,7 @@ class UiControl:
             self.statuRefreshThreadSelect = (not self.statuRefreshThreadSelect)
 
     def editWearable(self, isNew, isAfterPause=False):
+        self.showWhenPauseDone = self.dialogs[TID_W]
         self.beginPauseChange(PAUSE, False)
         self.dialogUis[TID_W].labelInvalidName.setVisible(False)
         self.dialogUis[TID_W].labelInvalidWearable.setVisible(False)
@@ -250,18 +257,16 @@ class UiControl:
             wearable = self.systemState.getHardwareObjectByXmlId(TID_W, self.currXmlId[TID_W])
         self.dialogUis[TID_W].inputName.setText(wearable.name)
         self.refreshWearableDropdown()
-        self.dialogs[TID_W].show()
 
     def editZone(self, isNew):
-        if (not self.systemState.systemIsPaused):
-            self.doRefresh = TID_Z
-            self.beginPauseChange(PAUSE, False)
-        else:
+        self.showWhenPauseDone = self.dialogs[TID_Z]
+        self.doRefresh = TID_Z
+        pauseNeeded = self.beginPauseChange(PAUSE, False)
+        if (not pauseNeeded):
             self.doRefresh = -1
             self.initiateDropdownRefresh(TID_Z)
         self.dialogUis[TID_Z].labelInvalidName.setVisible(False)
         self.dialogUis[TID_Z].labelInvalidModule.setVisible(False)
-        self.systemState.setSystemPause(PAUSE)
         self.newFlag = isNew
         if (isNew):
             zone = self.systemState.newZone()
@@ -270,18 +275,18 @@ class UiControl:
             zone = self.systemState.getHardwareObjectByXmlId(TID_Z, self.currXmlId[TID_Z])
         self.dialogUis[TID_Z].inputName.setText(zone.name)
         self.dialogUis[TID_Z].spinnerThreshold.setValue(zone.threshold)
-        self.dialogs[TID_Z].show()
+        if (not pauseNeeded):
+            self.dialogs[TID_Z].show()
 
     def editDevice(self, isNew):
-        if (not self.systemState.systemIsPaused):
-            self.doRefresh = TID_D
-            self.beginPauseChange(PAUSE, False)
-        else:
+        self.showWhenPauseDone = self.dialogs[TID_D]
+        self.doRefresh = TID_D
+        pauseNeeded = self.beginPauseChange(PAUSE, False)
+        if (not pauseNeeded):
             self.doRefresh = -1
             self.initiateDropdownRefresh(TID_D)
         self.dialogUis[TID_D].labelInvalidName.setVisible(False)
         self.dialogUis[TID_D].labelInvalidDevice.setVisible(False)
-        self.systemState.setSystemPause(PAUSE)
         self.newFlag = isNew
         if (isNew):
             device = self.systemState.newDevice()
@@ -289,16 +294,16 @@ class UiControl:
         else:
             device = self.systemState.getHardwareObjectByXmlId(TID_D, self.currXmlId[TID_D])
         self.dialogUis[TID_D].inputName.setText(device.name)
-        self.dialogs[TID_D].show()
+        if (not pauseNeeded):
+            self.dialogs[TID_D].show()
 
     def editConfig(self):
+        self.showWhenPauseDone = self.dialogs[TID_C]
         self.beginPauseChange(PAUSE, False)
         self.dialogUis[TID_C].labelInvalidZone.setVisible(False)
-        self.systemState.setSystemPause(PAUSE)
         device = self.systemState.getHardwareObjectByXmlId(TID_D, self.currXmlId[TID_C])
         self.dialogUis[TID_C].labelConfig.setText("Configuration for \"" + device.name + "\"")
         self.populateConfigDropdowns(device)
-        self.dialogs[TID_C].show()
 
     def cancelHardwareDialog(self, typeId):
         if (typeId != TID_C):
@@ -441,18 +446,31 @@ class UiControl:
         self.confirmDialogUi.labelWarning.setVisible(typeId == TID_Z)
         self.confirmDialog.show()
 
+    def beginTaskWithPause(self, taskId):
+        self.afterPauseTask = taskId
+        self.beginPauseChange(PAUSE, False)
+
+    def executeTask(self):
+        task = self.afterPauseTask
+        self.afterPauseTask = TASK_NONE
+
+        if (task == TASK_NONE):
+            return
+        elif (task == TASK_CLEAR_CONFIG):
+            self.clearConfig()
+        elif (task == TASK_DELETE_TABLE_ENTRY):
+            self.deleteTableEntry(self.delTypeId)
+
     def deleteTableEntry(self, typeId):
         xmlId = self.currXmlId[typeId]
-        self.systemState.setSystemPause(PAUSE)
         self.systemState.deleteHardwareObject(typeId, xmlId)
         self.tables[typeId].removeRow(self.tables[typeId].currentRow())
         self.removeFromStatusTable(typeId, xmlId)
-        self.confirmDialog.hide()
         if (not self.manuallyPaused):
             self.beginPauseChange(RESUME, False)
+        self.confirmDialog.hide()
 
     def clearConfig(self):
-        self.systemState.setSystemPause(PAUSE)
         device = self.systemState.getHardwareObjectByXmlId(TID_D, self.currXmlId[TID_C])
         device.zone = -1
         device.enter = 0
@@ -722,18 +740,22 @@ class UiControl:
 
         wearablesPresent = ""
         firstOneFlag = True
-        wearableIds = zone.wearablesInZone.keys()
+        signalDataList = zone.wearablesInZone.items()
 
-        if (len(wearableIds) == 0):
+        counter = 0
+        for wearbleId, signalData in signalDataList:
+            wearable = self.systemState.getHardwareObjectByHwId(TID_W, wearbleId)
+            if (not signalData.isInZone):
+                continue
+            counter += 1
+            if (firstOneFlag):
+                firstOneFlag = False
+            else:
+                wearablesPresent = wearablesPresent + ", "
+            wearablesPresent = wearablesPresent + wearable.name
+
+        if (counter == 0):
             wearablesPresent = "[none]"
-        else:
-            for wearbleId in wearableIds:
-                wearable = self.systemState.getHardwareObjectByHwId(TID_W, wearbleId)
-                if (firstOneFlag):
-                    firstOneFlag = False
-                else:
-                    wearablesPresent = wearablesPresent + ", "
-                wearablesPresent = wearablesPresent + wearable.name
 
         tableItems[1].setText(wearablesPresent)
 
@@ -810,5 +832,5 @@ class StatusRefreshThread(QtCore.QThread):
     refreshSignal = QtCore.pyqtSignal()
 
     def run(self):
-        time.sleep(2)
+        time.sleep(0.25)
         self.refreshSignal.emit()
