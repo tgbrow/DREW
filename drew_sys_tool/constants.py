@@ -67,3 +67,8 @@ DEL_STR = "Are you sure you want to delete "
 TASK_NONE = 0
 TASK_CLEAR_CONFIG = 1
 TASK_DELETE_TABLE_ENTRY = 2
+
+INSIDE = 1
+BETWEEN = 0
+OUTSIDE = -1
+OFFSET = 10

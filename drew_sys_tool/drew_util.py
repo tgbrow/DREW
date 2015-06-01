@@ -458,7 +458,7 @@ class SignalDataV2():
   def __init__(self, signalStrength, zoneThreshold):
     self.zoneThreshold = zoneThreshold
     self.lastUpdate = time.time()
-    self.samples = [signalStrength]
+    self.samples = [(signalStrength > self.zoneThreshold)]
     self.sampleCount = 1
     self.currIndex = 0
     self.isInZone = False
@@ -482,5 +482,45 @@ class SignalDataV2():
         self.isInZone = True
       elif (True not in self.samples):
         self.isInZone = False
+
+    return self.isInZone
+
+
+# three samples to change version WITH OFFSET
+class SignalDataV3():
+  def __init__(self, zoneThreshold):
+    self.zoneThreshold = zoneThreshold
+    self.lastUpdate = time.time()
+    self.samples = []
+    self.sampleCount = 1
+    self.currIndex = 0
+    self.isInZone = False
+
+  def addSample(self, signalStrength):
+    self.lastUpdate = time.time()
+    diff = signalStrength - self.zoneThreshold
+    newVal = BETWEEN
+    if (diff > OFFSET):
+      newVal = INSIDE
+    else if (diff < (-1 * OFFSET)):
+      newVal = OUTSIDE
+
+    if (self.sampleCount < MAX_SAMPLES):
+      # add sample to list
+      self.samples.append(newVal)
+      self.sampleCount += 1
+    else:
+      # overwirte oldest sample
+      self.samples[self.currIndex] = newVal
+      self.currIndex = (self.currIndex + 1) % MAX_SAMPLES
+
+    if (self.sampleCount == MAX_SAMPLES):
+      # only change zone occupation status if the
+      # last MAX_SAMPLES samples are all the same
+      if (BETWEEN not in self.samples):
+        if (OUTSIDE not in self.samples):
+          self.isInZone = True
+        elif (INSIDE not in self.samples):
+          self.isInZone = False
 
     return self.isInZone

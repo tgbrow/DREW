@@ -42,6 +42,10 @@ class SerialReader():
 						# nowInZone = (signalData.sampleCount == MAX_SAMPLES) and (newAvgStrength > zone.threshold)
 						
 						# --- version 2 ---
+						# wasInZone = signalData.isInZone
+						# nowInZone = signalData.addSample(msg.signalStrength)
+
+						# --- version 3 ---
 						wasInZone = signalData.isInZone
 						nowInZone = signalData.addSample(msg.signalStrength)
 					else: # wearable has NOT been seen in zone recently
@@ -49,7 +53,12 @@ class SerialReader():
 						# signalData = SignalData(msg.signalStrength)
 
 						# --- version 2 ---
-						signalData = SignalDataV2(msg.signalStrength, zone.threshold)
+						# signalData = SignalDataV2(zone.threshold)
+						# signalData.addSample(msg.signalStrength)
+
+						# --- version 3 ---
+						signalData = SignalDataV3(zone.threshold)
+						signalData.addSample(msg.signalStrength)
 
 						zone.wearablesInZone.add(msg.wearableId, signalData)
 
