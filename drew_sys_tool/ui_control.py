@@ -448,7 +448,9 @@ class UiControl:
 
     def beginTaskWithPause(self, taskId):
         self.afterPauseTask = taskId
-        self.beginPauseChange(PAUSE, False)
+        ret = self.beginPauseChange(PAUSE, False)
+        if (not ret):
+            self.executeTask()
 
     def executeTask(self):
         task = self.afterPauseTask
