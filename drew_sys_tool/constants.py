@@ -54,7 +54,7 @@ RESUME = False
 ACTION_QUEUE_MAX = 25 
 
 # maximum number of samples to average
-MAX_SAMPLES = 3
+MAX_SAMPLES = 2
 
 # sets alignment for text of entries in tables
 ITEM_ALIGN_FLAGS = QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter
@@ -71,4 +71,4 @@ TASK_DELETE_TABLE_ENTRY = 2
 INSIDE = 1
 BETWEEN = 0
 OUTSIDE = -1
-OFFSET = 10
+OFFSET = 5

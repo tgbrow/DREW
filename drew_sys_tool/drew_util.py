@@ -455,11 +455,11 @@ class SignalData():
 
 # three samples to change version
 class SignalDataV2():
-  def __init__(self, signalStrength, zoneThreshold):
+  def __init__(self, zoneThreshold):
     self.zoneThreshold = zoneThreshold
     self.lastUpdate = time.time()
-    self.samples = [(signalStrength > self.zoneThreshold)]
-    self.sampleCount = 1
+    self.samples = []
+    self.sampleCount = 0
     self.currIndex = 0
     self.isInZone = False
 
@@ -492,7 +492,7 @@ class SignalDataV3():
     self.zoneThreshold = zoneThreshold
     self.lastUpdate = time.time()
     self.samples = []
-    self.sampleCount = 1
+    self.sampleCount = 0
     self.currIndex = 0
     self.isInZone = False
 
@@ -502,7 +502,7 @@ class SignalDataV3():
     newVal = BETWEEN
     if (diff > OFFSET):
       newVal = INSIDE
-    else if (diff < (-1 * OFFSET)):
+    elif (diff < (-1 * OFFSET)):
       newVal = OUTSIDE
 
     if (self.sampleCount < MAX_SAMPLES):
