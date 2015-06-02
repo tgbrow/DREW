@@ -1,5 +1,6 @@
 import time
 from constants import *
+from drew_util import *
 
 class ZoneEvictor():
 	def __init__(self, systemState):
@@ -23,9 +24,10 @@ class ZoneEvictor():
 							if (currTime - signalData.lastUpdate > EVICT_TIME):
 								# print('time dif: ', currTime - signalData.lastUpdate)
 								zone.wearablesInZone.discard(wearableId)
-								self.systemState.actionQ.put((zone, DIR_EXIT), True, None)
+								if (zone.wearablesInZone.getWearableCount() == 0):
+									self.systemState.actionQ.put((zone, DIR_EXIT), True, None)
 					except:
 						# print('Wearable left zone while ZoneEvictor checking that zone.')
 						continue
 					
-				time.sleep(2.5)
+				time.sleep(EVICT_TIME/2.0)

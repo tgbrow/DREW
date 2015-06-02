@@ -57,17 +57,20 @@ class SerialReader():
 						# signalData.addSample(msg.signalStrength)
 
 						# --- version 3 ---
-						signalData = SignalDataV3(zone.threshold)
+						signalData = SignalDataV3(zone)
 						signalData.addSample(msg.signalStrength)
 
 						zone.wearablesInZone.add(msg.wearableId, signalData)
 
 					if (nowInZone != wasInZone): # wearable has entered or exited zone
+						zoneIsEmpty = False
 						if (not nowInZone):
 							zone.wearablesInZone.discard(msg.wearableId)
+							zoneIsEmpty = zone.wearablesInZone.getWearableCount() == 0
 
-						actionMsg = (zone, DIR_ENTER if nowInZone else DIR_EXIT)
-						self.systemState.actionQ.put(actionMsg, True, None)
+						if (zoneIsEmpty or nowInZone):
+							actionMsg = (zone, DIR_ENTER if nowInZone else DIR_EXIT)
+							self.systemState.actionQ.put(actionMsg, True, None)
 
 				elif (msg.msgType == MSG_TYPE_DISC_W):
 					# print("\n** Wearable Discovery Message Received **")
@@ -83,4 +86,4 @@ class SerialReader():
 					print('Invalid Serial Message: ', msg)
 
 			else: # sleep a little bit if there's nothing to do
-				time.sleep(0.5)
+				time.sleep(TRANSMIT_TIME/2.0)

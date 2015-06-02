@@ -250,6 +250,7 @@ class SystemState:
     
 class LockedDict:
   def __init__(self):
+    self.count = 0
     self.lock = threading.Lock()
     self.dict = {}
 
@@ -272,6 +273,8 @@ class LockedDict:
     try:
       self.lock.acquire()
       if (key in self.dict):
+        if (self.dict[key].isInZone):
+          self.count -= 1
         del self.dict[key]
     finally:
       self.lock.release()
@@ -307,6 +310,23 @@ class LockedDict:
     finally:
       self.lock.release()
       return value
+
+  def incrementWearableCount(self, delta):
+    try:
+      self.lock.acquire()
+      self.count += delta
+    finally:
+      self.lock.release()
+
+  def getWearableCount(self):
+    try:
+      self.lock.acquire()
+      ret = self.count
+    finally:
+      self.lock.release()
+      print("wearable count: " + str(ret))
+      return ret
+
 
 class LockedSet:
   def __init__(self):
@@ -488,8 +508,9 @@ class SignalDataV2():
 
 # three samples to change version WITH OFFSET
 class SignalDataV3():
-  def __init__(self, zoneThreshold):
-    self.zoneThreshold = zoneThreshold
+  def __init__(self, zone):
+    self.containingDict = zone.wearablesInZone
+    self.zoneThreshold = zone.threshold
     self.lastUpdate = time.time()
     self.samples = []
     self.sampleCount = 0
@@ -514,6 +535,7 @@ class SignalDataV3():
       self.samples[self.currIndex] = newVal
       self.currIndex = (self.currIndex + 1) % MAX_SAMPLES
 
+    oldIsInZone = self.isInZone
     if (self.sampleCount == MAX_SAMPLES):
       # only change zone occupation status if the
       # last MAX_SAMPLES samples are all the same
@@ -522,5 +544,11 @@ class SignalDataV3():
           self.isInZone = True
         elif (INSIDE not in self.samples):
           self.isInZone = False
+
+    if (oldIsInZone != self.isInZone):
+      if (self.isInZone):
+        self.containingDict.incrementWearableCount(1)
+      else:
+        self.containingDict.incrementWearableCount(-1)
 
     return self.isInZone

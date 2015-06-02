@@ -57,7 +57,7 @@ class BluetoothCommander:
 					self.controllers[device.hwId].setState(device.exit if action == DIR_EXIT else device.enter)
 					device.state = self.controllers[device.hwId].state
 		except:
-			print('ERROR: BluetoothCommander could not understand workItem, WE SHOULD NEVER SEE THIS EXCEPTION ANYMORE')
+			print('ERROR: BluetoothCommander perform error: workItem=', workItem)
 
 
 	def resume(self):
@@ -102,7 +102,7 @@ class BluetoothCommander:
 			zone = self.systemState.dicts[TID_Z].get(device.zone) #device.zone --> zone's xmlId
 			if zone == None:
 				continue #zone does not exist, most likely device is not connected to one
-			numInZone = len(zone.wearablesInZone.keys())
+			numInZone = zone.wearablesInZone.getWearableCount()
 			if numInZone > 0:
 				intendedState = device.enter #some wearable in zone
 			else:

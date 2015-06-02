@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<configuration>
+	<devices>
+		<device dId="0">
+			<name>Laptop</name>
+			<hwId>7C:7A:91:99:0A:D8</hwId>
+			<devType>0</devType>
+			<enter>2</enter>
+			<exit>1</exit>
+			<zId>0</zId>
+			<listName>DANIEL-LAPTOP</listName>
+		</device>
+		<device dId="1">
+			<name>Lamp</name>
+			<hwId>8C:DE:52:21:2F:2A</hwId>
+			<devType>0</devType>
+			<enter>2</enter>
+			<exit>1</exit>
+			<zId>1</zId>
+			<listName>Plugable</listName>
+		</device>
+	</devices>
+	<wearables>
+		<wearable wId="1">
+			<name>Leather Wearable</name>
+			<hwId>6</hwId>
+		</wearable>
+		<wearable wId="2">
+			<name>Green Wearable</name>
+			<hwId>8</hwId>
+		</wearable>
+	</wearables>
+	<zones>
+		<zone zId="0">
+			<name>Right Zone</name>
+			<hwId>4</hwId>
+			<threshold>69</threshold>
+		</zone>
+		<zone zId="1">
+			<name>Left Zone</name>
+			<hwId>3</hwId>
+			<threshold>93</threshold>
+		</zone>
+	</zones>
+</configuration>

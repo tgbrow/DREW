@@ -12,7 +12,7 @@ if (len(sys.argv) > 1):
 	comPort = sys.argv[1]
 
 # create system state
-systemState = SystemState("config_test.xml", comPort)
+systemState = SystemState("config.xml", comPort)
 
 # first start BluetoothCommander
 print('\nstarting commander...')

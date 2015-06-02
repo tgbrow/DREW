@@ -12,16 +12,24 @@
 		</device>
 	</devices>
 	<wearables>
-		<wearable wId="0">
-			<name>Teddy's Wearable</name>
+		<wearable wId="2">
+			<name>no case</name>
 			<hwId>7</hwId>
+		</wearable>
+		<wearable wId="4">
+			<name>leather</name>
+			<hwId>6</hwId>
+		</wearable>
+		<wearable wId="5">
+			<name>New Wearable</name>
+			<hwId>5</hwId>
 		</wearable>
 	</wearables>
 	<zones>
 		<zone zId="0">
-			<name>Bedroom</name>
-			<hwId>3</hwId>
-			<threshold>90</threshold>
+			<name>chair</name>
+			<hwId>4</hwId>
+			<threshold>85</threshold>
 		</zone>
 	</zones>
 </configuration>
